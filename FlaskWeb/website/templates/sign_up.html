@@ -4,30 +4,42 @@
 
 <body class="text-center">
   <div class="container">
+
     <form method="POST">
       <br />
       <br />
       <h2 align="center"> Please Create Your Account</h2>
       <br />
-      <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" class="form-control" id="email" name="email"  placeholder="Enter email" />
+      <div class="form-group required">
+        <label class="col-md-2 control-label">Handle</label>
+          <input type="text" class="form-control" id="handle" name="handle" required="required"  placeholder="Enter Handle" />
       </div>
 
-      <div class="form-group">
-        <label for="firstName">First Name</label>
-        <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter email" />
+      <div class="form-group required">
+        <label class="col-md-2 control-label">First Name</label>
+        <input type="text" class="form-control" id="firstname" name="firstname" required="required" placeholder="Enter First Name" />
       </div>
 
 
       <div class="form-group">
-        <label for="password1">Password</label>
-        <input type="password" class="form-control" id="password1" name="password1" placeholder="Enter password" />
+        <label class="col-md-2 control-label">Last Name</label>
+        <input type="text" class="form-control" id="lastname" name="lastname"  placeholder="Enter Last Name" />
       </div>
 
+
       <div class="form-group">
-        <label for="password2">Password(Confirm)</label>
-        <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm password" />
+        <label class="col-md-2 control-label">Country</label>
+        <input type="text" class="form-control" id="country" name="country" placeholder="Enter Country" />
+      </div>
+
+      <div class="form-group required">
+        <label class="col-md-2 control-label">Password</label>
+        <input type="password" class="form-control" id="password1" name="password1" required="required" placeholder="Enter password" />
+      </div>
+
+      <div class="form-group required">
+        <label class="col-md-2 control-label">Password(Confirm)</label>
+        <input type="password" class="form-control" id="password2" name="password2" required="required" placeholder="Confirm password" />
       </div>
 
       <br />

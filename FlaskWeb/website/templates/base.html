@@ -54,7 +54,7 @@
           <li class="nav-item">
             <span class="navbar-text" style="color: indianred"
               ><h5>
-                Hello {{ user.first_name }}! &nbsp; &nbsp; &nbsp; &nbsp;
+                Hello {{ user.firstname }}! &nbsp; &nbsp; &nbsp; &nbsp;
               </h5></span
             >
           </li>
@@ -120,6 +120,11 @@
     body {
       background-color: #212121;
       color: white;
+    }
+
+    .form-group.required .control-label:after {
+      content: "*";
+      color: red;
     }
   </style>
 </html>
