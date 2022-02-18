@@ -76,8 +76,32 @@ def insert_user(db, dbConn, user):
         db.execute(user_insert_query)
         dbConn.commit()
     except Exception as e:
-        logging.critical("Error updating the users table: %s",  e)
+        logging.critical("Error inserting in the users table: %s",  e)
         dbConn.rollback()
     else:
         logging.debug("Insert query into users tables was successful")
+
+def update_user(db, dbConn, handle, new_user):
+    logging.debug("Updating user with handle: %s", handle)
+    logging.debug("New user attributes: %s", new_user.getStr())
+
+    if db == None:
+        logging.critical("Updating user with None db cursor!!")
+        return 
+
+    user_update_query = sql_update_user % {'old_handle': handle, 'new_handle': new_user.handle, 'firstname': new_user.firstname, 'lastname': new_user.lastname, 'country': new_user.country, 'password': new_user.password }
+
+    logging.debug("Update user query: %s", user_update_query)
+    try:
+        db.execute(user_update_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Error updating the users table: %s", e)
+        dbConn.rollback()
+    else:
+        logging.debug("Update query into users table was successful.")
+
+
+
+
 

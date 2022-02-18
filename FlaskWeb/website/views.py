@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, flash, request, redirect
 from flask.helpers import url_for
-from flask_login import  current_user
+from flask_login import  current_user, logout_user, login_user
 from website.database import *
 from werkzeug.security import generate_password_hash
 import website
@@ -33,7 +33,7 @@ def profile(handle):
     return render_template("home.html", user=current_user)
 
 
-@views.route('/profile/<handle>/edit', methods=['GET, POST'])
+@views.route('/profile/<handle>/edit', methods=['GET', 'POST'])
 def account(handle):
 
     logging.debug("User: %s, Request Type: %s, Page: edit profile", handle, request.method)
@@ -65,25 +65,34 @@ def account(handle):
         new_password2 = request.form.get('password2')
         
         if new_handle != "":
-            user.handle = new_handle
+            userObj.handle = new_handle
         handle_already_exists = (None != get_user_with_handle(website.db, website.dbConn, new_handle))
         if handle_already_exists:
+            logging.debug("User requested for an already in use handle")
             flash('Handle already taken by some other user', category='error')
             return render_template("profile_edit.html", user=current_user)
 
         if new_firstname != "":
-            user.firstname = new_firstname
+            userObj.firstname = new_firstname
         if new_lastname != "":
-            user.lastname = new_lastname
+            userObj.lastname = new_lastname
         if new_country != "":
-            user.country = new_country
+            userObj.country = new_country
         if new_password1 != new_password2:
+            logging.debug("User entered non-matching passwords")
             flash("Password don't match", category='error')
             return render_template("profile_edit.html", user=current_user)
 
-        user.password = generate_password_hash(new_password1, method='sha256')
-        insert_user(website.db, website.dbConn, user)
+        if new_password1 != "":
+            logging.debug("User entered a new password")
+            userObj.password = generate_password_hash(new_password1, method='sha256')
+
+        update_user(website.db, website.dbConn, current_user.handle, userObj)
         flash('Profile Updated!', category='success')
+        
+        logout_user()
+        login_user(userObj, remember=True)
+
         return redirect(url_for('views.profile', handle=handle))
 
     #handle get request here

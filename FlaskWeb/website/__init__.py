@@ -1,41 +1,41 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from os import path
-from flask_login import LoginManager
+parser = None
 
-db = SQLAlchemy()
-DB_NAME = "database.db"
+db = None
+dbConn = None
 
-def create_app():
-    app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'qwernaowja'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + DB_NAME
+login_manager = None
 
-    db.init_app(app)
+# Maintained for integrity
+# Attributes of user should be passed using this class
+class User:
+    def __init__(self, user):
+        (handle, firstname, lastname, country, rating, contribution, password) = user
+        self.handle = handle
+        self.firstname = firstname
+        self.lastname = lastname
+        self.country = country
+        self.rating = rating
+        self.contribution = contribution
+        self.password = password
+        self.authenticated = False
+    
+    def is_active(self):
+        return True
 
+    def get_id(self):
+        return self.handle
 
-    from .views import views
-    from .auth import auth
+    def is_authenticated(self):
+        return self.authenticated
 
-    app.register_blueprint(views, url_prefix='/')
-    app.register_blueprint(auth, url_prefix='/')
+    def is_anonymous(self):
+        return False
+    
+    def getStr(self):
+        return "('%s', '%s', '%s', '%s', %s, %s, '%s')" % (self.handle, self.firstname, self.lastname, self.country, self.rating, self.contribution, str(self.password))
+        
 
-    from .models import User, Note
-
-    create_database(app)
-    login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
-    login_manager.init_app(app)
-
-    @login_manager.user_loader
-    def load_user(id):
-        return User.query.get(int(id))
-
-    return app
-
-def create_database(app):
-    global DB_NAME
-    if not path.exists('website/' +  DB_NAME):
-        db.create_all(app=app)
-        print('Created Database!')
-
+#Points to be noted 
+#1. Database will return tuples
+#2. If required tuples can be converted to the User class
+#3. Database function doing insert will take these classes as input
