@@ -28,6 +28,10 @@ logging.debug("Database Name: %s", databaseName)
 logging.debug("Database User: %s", databaseUser)
 logging.debug("Database Password: %s", databasePass)
 
+
+website.login_manager = LoginManager()
+website.login_manager.login_view = 'auth.login'
+
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'qwernaowja'
@@ -38,16 +42,14 @@ def create_app():
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
 
-    login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
-    login_manager.init_app(app)
+    website.login_manager.init_app(app)
 
     website.db, website.dbConn = get_database_connection(host, port, databaseName, databaseUser, databasePass )
 
     assert website.db != None
     assert website.dbConn != None
 
-    @login_manager.user_loader
+    @website.login_manager.user_loader
     def load_user(handle):
         user = get_user_with_handle(website.db, website.dbConn, str(handle))
         if user is None:

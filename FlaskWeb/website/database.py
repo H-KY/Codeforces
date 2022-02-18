@@ -66,6 +66,10 @@ def insert_user(db, dbConn, user):
     assert len(user.firstname) != 0
     assert len(user.password) != 0
 
+    if db == None:
+        logging.critical("Inserting user with None db cursor!!")
+        return 
+
     user_insert_query = sql_insert_user % {'user': user.getStr() }
     logging.debug("Insert query: %s", user_insert_query)
     try:
@@ -73,6 +77,7 @@ def insert_user(db, dbConn, user):
         dbConn.commit()
     except Exception as e:
         logging.critical("Error updating the users table: %s",  e)
+        dbConn.rollback()
     else:
         logging.debug("Insert query into users tables was successful")
 
