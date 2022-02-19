@@ -33,7 +33,7 @@ def close_database_connection(db, dbConn):
     else:
         logging.warning("Trying to close a connection with NULL connection")
 
-def get_user_with_handle(db, dbConn, handle):
+def db_get_user_with_handle(db, dbConn, handle):
     # Returns the user with handle=handle if user exists, else returns None
     logging.debug("Querying User with Handle %s:", handle)
     if handle == "":
@@ -60,7 +60,7 @@ def get_user_with_handle(db, dbConn, handle):
     else:
         return None
 
-def insert_user(db, dbConn, user):
+def db_insert_user(db, dbConn, user):
     logging.debug("Adding user: %s to users table", user.getStr() )
     assert len(user.handle) != 0
     assert len(user.firstname) != 0
@@ -81,7 +81,7 @@ def insert_user(db, dbConn, user):
     else:
         logging.debug("Insert query into users tables was successful")
 
-def update_user(db, dbConn, handle, new_user):
+def db_update_user(db, dbConn, handle, new_user):
     logging.debug("Updating user with handle: %s", handle)
     logging.debug("New user attributes: %s", new_user.getStr())
 
@@ -101,5 +101,26 @@ def update_user(db, dbConn, handle, new_user):
     else:
         logging.debug("Update query into users table was successful.")
 
+<<<<<<< HEAD
+=======
+def db_delete_user(db, dbConn, handle):
+    logging.debug("Deleteing user: %s", handle)
+
+    if db == None:
+        logging.critical("Updating user with None db cursor!!")
+        return 
+
+    user_delete_query = sql_delete_user % {'handle': handle}
+    logging.debug("Delete user query: %s", user_delete_query)
+
+    try:
+        db.execute(user_delete_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Error deleting the user from users table: %s", e)
+        dbConn.rollback()
+    else:
+        logging.debug("Deleting user was successful.")
+>>>>>>> fa14626 (Complete: Milestone 1 of Login/LogOut/SignUp/Update/Delete Account)
 
 

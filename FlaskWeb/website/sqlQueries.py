@@ -17,3 +17,8 @@ sql_update_user = """
                         WHERE handle = '%(old_handle)s';
 
                    """
+
+sql_delete_user = """
+                        DELETE FROM users
+                               WHERE handle = '%(handle)s';
+                  """

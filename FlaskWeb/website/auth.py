@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-from website.database import get_user_with_handle, insert_user
+from website.database import db_get_user_with_handle, db_insert_user
 import website
 import logging
 import json
@@ -16,7 +16,7 @@ def login():
         password = request.form.get('password')
         logging.debug('POST request received with Handle:%s, Password:%s', handle, password)
 
-        user = get_user_with_handle(website.db, website.dbConn, handle)
+        user = db_get_user_with_handle(website.db, website.dbConn, handle)
         if user: #if user exist
             logging.debug("User %s found in database, matching password", handle)
             user = website.User(user)
@@ -62,7 +62,7 @@ def sign_up():
 
         logging.debug("Got Sign Up request with handle: %s, firstname: %s, lastname: %s, country: %s, password1: %s, password2: %s", handle, firstname, lastname, country, password1, password2)
 
-        user = get_user_with_handle(website.db, website.dbConn, handle)
+        user = db_get_user_with_handle(website.db, website.dbConn, handle)
         if user:
             logging.debug("Handle already Existed")
             flash('Handle already exists.', category = 'error')
@@ -85,24 +85,12 @@ def sign_up():
             def_contribution = int(website.parser['users']['default_contribution'])
             new_user = website.User((handle, firstname, lastname, country, def_rating, def_contribution, password))
 
-            insert_user(website.db, website.dbConn, new_user)
+            db_insert_user(website.db, website.dbConn, new_user)
             flash('Account Created!', category='success')
             login_user(new_user, remember=True)
 
             return redirect(url_for('views.home'))
         
     return render_template("sign_up.html", user=current_user)
-
-@auth.route('/delete-note', methods=['POST'])
-def delete_note():
-    note = json.loads(request.data)
-    noteId = note['noteId']
-
-    note = Note.query.get(noteId)
-    if note:
-        if note.user_id == current_user.id:
-            db.session.delete(note)
-            db.session.commit()
-    return jsonify({})
 
 

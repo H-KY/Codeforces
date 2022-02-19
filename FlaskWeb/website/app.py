@@ -1,7 +1,7 @@
 from flask import Flask
 from os import path
 from flask_login import LoginManager
-from website.database import get_database_connection, get_user_with_handle
+from website.database import get_database_connection, db_get_user_with_handle
 import logging
 import configparser
 import website
@@ -51,7 +51,7 @@ def create_app():
 
     @website.login_manager.user_loader
     def load_user(handle):
-        user = get_user_with_handle(website.db, website.dbConn, str(handle))
+        user = db_get_user_with_handle(website.db, website.dbConn, str(handle))
         if user is None:
             return user
         return website.User(user)

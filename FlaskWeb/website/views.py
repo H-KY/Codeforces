@@ -59,7 +59,7 @@ def account(handle):
 
     logging.debug("User: %s, Request Type: %s, Page: edit profile", handle, request.method)
 
-    user = get_user_with_handle(website.db, website.dbConn, handle)
+    user = db_get_user_with_handle(website.db, website.dbConn, handle)
     if not current_user.is_authenticated:
         logging.debug("Edit profile page for user: %s, was requrest without login", handle)
         return redirect(url_for('views.profile', handle=handle))
@@ -87,7 +87,7 @@ def account(handle):
         
         if new_handle != "":
             userObj.handle = new_handle
-        handle_already_exists = (None != get_user_with_handle(website.db, website.dbConn, new_handle))
+        handle_already_exists = (None != db_get_user_with_handle(website.db, website.dbConn, new_handle))
         if handle_already_exists:
             logging.debug("User requested for an already in use handle")
             flash('Handle already taken by some other user', category='error')
@@ -108,10 +108,13 @@ def account(handle):
             logging.debug("User entered a new password")
             userObj.password = generate_password_hash(new_password1, method='sha256')
 
-        update_user(website.db, website.dbConn, current_user.handle, userObj)
+        db_update_user(website.db, website.dbConn, current_user.handle, userObj)
         flash('Profile Updated!', category='success')
         
+        current_user.is_authenticated = False
         logout_user()
+
+        current_user.is_authenticated = True
         login_user(userObj, remember=True)
 
         return redirect(url_for('views.profile', handle=handle))
@@ -119,3 +122,21 @@ def account(handle):
     #handle get request here
     logging.debug("Authorization Successful, User %s is on edit profile page", userObj.handle)
     return render_template("profile_edit.html", user=current_user)
+
+@views.route('/deleteProfile/<handle>', methods=['GET', 'POST'])
+def delete_account(handle):
+    #only post methods are accepted
+    #delete the account of the user currently logged in
+    #and then logout and redirect to home page
+    
+    logging.debug("Got Account delete requres from user: %s", handle)
+    assert db_get_user_with_handle(website.db, website.dbConn, current_user.handle) != None
+    logging.debug("Deleting user from database")
+    db_delete_user(website.db, website.dbConn, current_user.handle)
+    current_user.is_authenticated = False
+    logging.debug("Logging out user and redirecting to home page")
+    logout_user()
+
+    return redirect(url_for('views.home'))
+    
+
