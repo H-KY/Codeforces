@@ -101,8 +101,6 @@ def db_update_user(db, dbConn, handle, new_user):
     else:
         logging.debug("Update query into users table was successful.")
 
-<<<<<<< HEAD
-=======
 def db_delete_user(db, dbConn, handle):
     logging.debug("Deleteing user: %s", handle)
 
@@ -121,7 +119,6 @@ def db_delete_user(db, dbConn, handle):
         dbConn.rollback()
     else:
         logging.debug("Deleting user was successful.")
->>>>>>> fa14626 (Complete: Milestone 1 of Login/LogOut/SignUp/Update/Delete Account)
 
 def db_get_top_rated_users(db, dbConn, num):
     assert num >= 0
