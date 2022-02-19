@@ -24,7 +24,6 @@ def login():
                 logging.debug("Login for user %s sucessful, redirecting to home", handle)
                 flash('Logged in sucessfuly!', category='success')
 
-                user.authenticated = True
                 login_user(user, remember=True)
                 return redirect(url_for('views.home'))
             else:
@@ -40,7 +39,6 @@ def login():
 def logout():
     user = current_user
     logging.debug("Logging out user with handle: %s", user.handle)
-    user.authenticated = False
     logout_user()
     logging.debug("Logout Successful, redirecting to login page")
     return redirect(url_for('auth.login'))

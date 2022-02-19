@@ -1,0 +1,121 @@
+{% extends "base.html" %} {% block title %} Home {% endblock %} {% block content
+%}
+
+<h1 align="center">Notes</h1>
+
+<div class="container-fluid" style="padding-left: 2%">
+  <div class="row">
+    <div class="col-md-3">
+      <table class="table table-hover table-light">
+        <caption
+          style="
+            caption-side: top;
+            background-color: white;
+            font-size: larger;
+            text-align: center;
+            color: black;
+            font-family: 'Times New Roman', Times, serif;
+          "
+        >
+          Top Rated
+        </caption>
+        <thead style="background-color: navajowhite">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">User</th>
+            <th scope="col">Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in top_rated_users %}
+
+          <!--Users is a 2 tuple (handle, rating) -->
+
+          {% if loop.index % 2 == 0 %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>
+              <a href="{{url_for('views.profile', handle=user[0]) }} ">
+                {{ user[0] }}</a
+              >
+            </td>
+            <td>{{ user[1] }}</td>
+          </tr>
+          {% else %}
+          <tr style="background-color: lightgray">
+            <td>{{ loop.index }}</td>
+            <td>
+              <a href="{{url_for('views.profile', handle=user[0]) }} ">
+                {{ user[0] }}</a
+              >
+            </td>
+            <td>{{ user[1] }}</td>
+          </tr>
+          {%endif%} {% endfor %}
+        </tbody>
+      </table>
+
+      <br />
+      <br />
+
+      <table class="table table-hover table-light">
+        <caption
+          style="
+            caption-side: top;
+            background-color: white;
+            font-size: larger;
+            text-align: center;
+            color: black;
+            font-family: 'Times New Roman', Times, serif;
+          "
+        >
+          Top Contributors
+        </caption>
+        <thead style="background-color: navajowhite">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">User</th>
+            <th scope="col">Contributions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in top_contributors_users %}
+
+          <!--Users is a 2 tuple (handle, rating) -->
+
+          {% if loop.index % 2 == 0 %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>
+              <a href="{{url_for('views.profile', handle=user[0]) }} ">
+                {{ user[0] }}</a
+              >
+            </td>
+            <td>{{ user[1] }}</td>
+          </tr>
+          {% else %}
+          <tr style="background-color: lightgray">
+            <td>{{ loop.index }}</td>
+            <td>
+              <a href="{{url_for('views.profile', handle=user[0]) }} ">
+                {{ user[0] }}</a
+              >
+            </td>
+            <td>{{ user[1] }}</td>
+          </tr>
+          {%endif%} {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-md-9 mr-auto">
+      <div class="card h-100">
+        <div class="card-body">
+          <p>This side will contains the blog</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

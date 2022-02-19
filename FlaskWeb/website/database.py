@@ -123,4 +123,44 @@ def db_delete_user(db, dbConn, handle):
         logging.debug("Deleting user was successful.")
 >>>>>>> fa14626 (Complete: Milestone 1 of Login/LogOut/SignUp/Update/Delete Account)
 
+def db_get_top_rated_users(db, dbConn, num):
+    assert num >= 0
+    logging.debug("Querying database for %d top rated users", num)
 
+    if db == None:
+        logging.critical("Updating user with None db cursor!!")
+        return 
+    
+    user_top_rated_query = sql_top_x_rated_users % {'num': num }
+    logging.debug("User top rated query: %s", user_top_rated_query)
+    try: 
+        db.execute(user_top_rated_query)
+        result = db.fetchall()
+        logging.debug(result)
+        assert len(result) <= num
+    except Exception as e:
+        logging.critical("Error querying top rated users. Error: %s", e)
+        return None
+
+    return result
+
+def db_get_top_contributors_users(db, dbConn, num):
+    assert num >= 0
+    logging.debug("Querying database for %d top contributors users", num)
+
+    if db == None:
+        logging.critical("Updating user with None db cursor!!")
+        return 
+    
+    user_top_contributors_query = sql_top_x_contributors_users % {'num': num }
+    logging.debug("User top contributors query: %s", user_top_contributors_query)
+    try: 
+        db.execute(user_top_contributors_query)
+        result = db.fetchall()
+        logging.debug(result)
+        assert len(result) <= num
+    except Exception as e:
+        logging.critical("Error querying top rated users. Error: %s", e)
+        return None
+
+    return result

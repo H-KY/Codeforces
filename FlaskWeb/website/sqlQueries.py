@@ -22,3 +22,18 @@ sql_delete_user = """
                         DELETE FROM users
                                WHERE handle = '%(handle)s';
                   """
+
+sql_top_x_rated_users = """
+                        SELECT users.handle, users.rating
+                        FROM users
+                        ORDER BY users.rating DESC
+                        LIMIT %(num)d;
+                    """
+
+
+sql_top_x_contributors_users = """
+                        SELECT users.handle, users.contribution
+                        FROM users
+                        ORDER BY users.contribution DESC, users.rating DESC
+                        LIMIT %(num)d;
+                    """

@@ -14,18 +14,13 @@ def unauthorized_callback():
 
 @views.route('/', methods=['GET', 'POST'])
 def home():
-    if request.method == 'POST':
-        note = request.form.get('note')
+    logging.info("Home page is requested") 
 
-        if len(note) < 1:
-            flash('Note is too short!', category='error')
-        else:
-            # new_note = Note(data=note, user_id=current_user.id)
-            # db.session.add(new_note)
-            # db.session.commit()
-            flash('Note Added!', category='success')
-
-    return render_template("home.html", user=current_user) 
+    num_top_rated = int(website.parser['home_page']['num_top_rated'])
+    num_top_contributors = int(website.parser['home_page']['num_top_contributors'])
+    top_rated_users = db_get_top_rated_users(website.db, website.dbConn, num_top_rated)
+    top_contributors_users = db_get_top_contributors_users(website.db, website.dbConn, num_top_contributors)
+    return render_template("home.html", user=current_user, top_rated_users = top_rated_users, top_contributors_users= top_contributors_users) 
 
 @views.route('/profile/<handle>/home', methods=['GET', 'POST'])
 def profilehome(handle):
@@ -52,12 +47,16 @@ def profilefriend(handle):
     logging.debug("User: %s friends was requested", handle)
     return render_template("profile_friend.html", user=current_user)
 
+@views.route('/profile/<handle>', methods=['GET', 'POST'])
+def profile(handle):
+    logging.info("User: %s profile was requested", handle)
+    return render_template("home.html", user=current_user)
 
 
 @views.route('/profile/<handle>/edit', methods=['GET', 'POST'])
 def account(handle):
 
-    logging.debug("User: %s, Request Type: %s, Page: edit profile", handle, request.method)
+    logging.info("User: %s, Request Type: %s, Page: edit profile", handle, request.method)
 
     user = db_get_user_with_handle(website.db, website.dbConn, handle)
     if not current_user.is_authenticated:
@@ -77,7 +76,7 @@ def account(handle):
 
 
     if request.method == 'POST':
-        logging.debug("Received post request on edit profile page")
+        logging.info("Received post request on edit profile page")
         new_firstname = request.form.get('firstname')
         new_lastname = request.form.get('lastname')
         new_handle = request.form.get('handle')
@@ -111,16 +110,14 @@ def account(handle):
         db_update_user(website.db, website.dbConn, current_user.handle, userObj)
         flash('Profile Updated!', category='success')
         
-        current_user.is_authenticated = False
         logout_user()
 
-        current_user.is_authenticated = True
         login_user(userObj, remember=True)
 
         return redirect(url_for('views.profile', handle=handle))
 
     #handle get request here
-    logging.debug("Authorization Successful, User %s is on edit profile page", userObj.handle)
+    logging.info("Authorization Successful, User %s is on edit profile page", userObj.handle)
     return render_template("profile_edit.html", user=current_user)
 
 @views.route('/deleteProfile/<handle>', methods=['GET', 'POST'])
@@ -129,12 +126,11 @@ def delete_account(handle):
     #delete the account of the user currently logged in
     #and then logout and redirect to home page
     
-    logging.debug("Got Account delete requres from user: %s", handle)
+    logging.info("Got Account delete requres from user: %s", handle)
     assert db_get_user_with_handle(website.db, website.dbConn, current_user.handle) != None
-    logging.debug("Deleting user from database")
+    logging.info("Deleting user from database")
     db_delete_user(website.db, website.dbConn, current_user.handle)
-    current_user.is_authenticated = False
-    logging.debug("Logging out user and redirecting to home page")
+    logging.info("Logging out user and redirecting to home page")
     logout_user()
 
     return redirect(url_for('views.home'))

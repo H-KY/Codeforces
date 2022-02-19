@@ -1,9 +1,14 @@
 {% extends "base.html" %} {% block title %} Login {% endblock %} {% block
 content %}
 
-
-<form method="POST">
+<div class="container" style="max-width: 500px;">
+<br />
+<br />
+<br />
+<form method="POST" style="outline-style: auto; outline-offset: 8px;">
   <h3 align="center">Login</h3>
+  <hr size="2" color="white">
+
   <div class="form-group">
     <label for="handle">Handle</label>
     <input type="text" class="form-control" id="handle" name="handle"  placeholder="Enter handle" />
@@ -12,9 +17,11 @@ content %}
     <label for="password">Password</label>
     <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" />
   </div>
-  <br />
-  <button type="submit" class="btn btn-primary">Login</button>
+  <div class="wrapper" style="text-align: center;">
+    <button type="submit" class="btn btn-primary">Login</button>
+  </div>
 </form>
+</div>
 
 
 {% endblock %}
