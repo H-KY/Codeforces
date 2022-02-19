@@ -103,5 +103,3 @@ def update_user(db, dbConn, handle, new_user):
 
 
 
-
-

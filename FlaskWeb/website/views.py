@@ -27,10 +27,31 @@ def home():
 
     return render_template("home.html", user=current_user) 
 
-@views.route('/profile/<handle>', methods=['GET', 'POST'])
-def profile(handle):
+@views.route('/profile/<handle>/home', methods=['GET', 'POST'])
+def profilehome(handle):
     logging.debug("User: %s profile was requested", handle)
-    return render_template("home.html", user=current_user)
+    return render_template("profile_home.html", user=current_user)
+
+@views.route('/profile/<handle>/blog', methods=['GET', 'POST'])
+def profileblog(handle):
+    logging.debug("User: %s blogs was requested", handle)
+    return render_template("profile_blog.html", user=current_user)
+
+@views.route('/profile/<handle>/contest', methods=['GET', 'POST'])
+def profilecontest(handle):
+    logging.debug("User: %s contests was requested", handle)
+    return render_template("profile_contest.html", user=current_user)
+
+@views.route('/profile/<handle>/submission', methods=['GET', 'POST'])
+def profilesubmission(handle):
+    logging.debug("User: %s submission was requested", handle)
+    return render_template("profile_submission.html", user=current_user)
+
+@views.route('/profile/<handle>/friend', methods=['GET', 'POST'])
+def profilefriend(handle):
+    logging.debug("User: %s friends was requested", handle)
+    return render_template("profile_friend.html", user=current_user)
+
 
 
 @views.route('/profile/<handle>/edit', methods=['GET', 'POST'])

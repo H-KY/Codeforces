@@ -52,7 +52,7 @@
                   {{ "Hello " + user.firstname + "!" }}
                 </button>
                 <div class="dropdown-content">
-                  <a href="{{ url_for('views.profile', handle=user.handle)  }}"
+                  <a href="{{ url_for('views.profilehome', handle=user.handle)  }}"
                     >Profile</a
                   >
                   <a href="{{ url_for('views.account', handle=user.handle) }}"

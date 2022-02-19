@@ -31,10 +31,7 @@ user_dict = dict()
 zz = 0
 for line in uf:
     if zz != 0:
-
-
-
-    zz = 1
+        zz = 1
 
 #f.writerow(['problemId', 'name', 'contestId', 'rating', 'tags'])
 
