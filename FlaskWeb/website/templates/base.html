@@ -52,7 +52,7 @@
                   {{ "Hello " + user.firstname + "!" }}
                 </button>
                 <div class="dropdown-content">
-                  <a href="{{ url_for('views.profilehome', handle=user.handle)  }}"
+                  <a href="{{ url_for('views.profile', handle=user.handle)  }}"
                     >Profile</a
                   >
                   <a href="{{ url_for('views.account', handle=user.handle) }}"
@@ -103,7 +103,7 @@
       <a href="#">PROBLEMSET</a>
       <a href="#">CONTESTS</a>
       <a href="#">BLOGS</a>
-      <a href="#">USERS</a>
+      <a href="{{ url_for('views.users') }}">USERS</a>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %} {% if
@@ -202,7 +202,7 @@
 
     .dropdown-content {
       display: none;
-      position: absolute;
+      position: relative;
       background-color: #f1f1f1;
       min-width: 160px;
       box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
@@ -258,8 +258,10 @@
     .card-body .deletebutton {
       margin-top: auto;
     }
+
     .container-fluid {
       padding: 10 !important;
     }
+
   </style>
 </html>

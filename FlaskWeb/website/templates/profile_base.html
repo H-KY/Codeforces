@@ -3,7 +3,7 @@
   content %}
 
 <div class="usernav">
-        <a class="active" href="{{ url_for('views.profilehome', handle=user.handle)  }}">{{user.handle}}</a>
+        <a class="active" href="{{ url_for('views.profile', handle=user.handle)  }}">{{user.handle}}</a>
         <a href="{{ url_for('views.profileblog', handle=user.handle)  }}">Blog</a>
         <a href="{{ url_for('views.profilesubmission', handle=user.handle)  }}">Submission</a>
         <a href="{{ url_for('views.profilecontest', handle=user.handle)  }}">Contest</a>

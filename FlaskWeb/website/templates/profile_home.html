@@ -1,52 +1,67 @@
-{% extends "profile_base.html" %} {% block title %} {{user.handle + " - SQLFORCES"}} {% endblock %} 
-
-{% block profile_content %} 
+{% extends "base.html" %} {% block title %} {{ profile_user.handle }} {%
+endblock %} {% block content %}
 
 <!-- Font Awesome -->
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+<link
+  rel="stylesheet"
+  href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+/>
 <!-- Google Fonts -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+/>
 <!-- Bootstrap core CSS -->
-<link href="https:/ /cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+<link
+  href="https:/ /cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
 <!-- Material Design Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/css/mdb.min.css" rel="stylesheet">
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/css/mdb.min.css"
+  rel="stylesheet"
+/>
 
-<div class = "container">
-    <div class = "row d-flex justify-content-center">
-    <div class = "col-md-10 mt -5 pt-5">
-        <div class="row z-depth-3">
-            <div class = "col-sm-4 bg-info rounded-left">
-                <div class = "card-block text-center text-white">
-                    <i class="fas fa-user-tie fa-7x mt-5"></i>
-                    <h2 class="font-weight-bold mt-4">{{user.handle}}</h2>
-                    <p>Specialist</p>
-                </div>    
-            </div>
-            <div class="col-sm-8 bg-black rounded-right">
-                <h3 class="mt-3 text-center">Information</h3>
-                <hr class="badge-primary mt-0 w-25">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <p class="font-weight-bold"> Name: </p>
-                        <h6 class="text-muted"> {{user.firstname + " " + user.lastname}} </h6>
-                    </div>
-                    <div class="col-sm-6">
-                        <p class="font-weight-bold"> Rating: </p>
-                        <h6 class="text-muted"> {{user.rating}} </h6>
-                    </div> 
-                    <div class="col-sm-6">
-                        <p class="font-weight-bold"> Contributions: </p>
-                        <h6 class="text-muted"> {{user.contribution}} </h6>
-                    </div> 
-                    <div class="col-sm-6">
-                        <p class="font-weight-bold"> Country: </p>
-                        <h6 class="text-muted"> {{user.country}} </h6>
-                    </div>
-                </div>
-            </div>
+<br />
+<br />
+<div class="container" style="outline-style: outset">
+  <div class="row d-flex justify-content-center">
+    <div class="col-md-10 mt -5 pt-5">
+      <div class="row z-depth-3">
+        <div class="col-sm-4 bg-info rounded-left">
+          <div class="card-block text-center text-white">
+            <i class="fas fa-user-tie fa-7x mt-5"></i>
+            <h2 class="font-weight-bold mt-4">{{ profile_user.handle }}</h2>
+            <p>Specialist</p>
+          </div>
         </div>
+        <div class="col-sm-8 bg-black rounded-right">
+          <h3 class="mt-3 text-center">Information</h3>
+          <hr class="badge-primary mt-0 w-25" />
+          <div class="row" style="text-align: center">
+            <div class="col-sm-6">
+              <p class="font-weight-bold">Name:</p>
+              <h6 class="text-muted">
+                {{ profile_user.firstname + " " + profile_user.lastname }}
+              </h6>
+            </div>
+            <div class="col-sm-6">
+              <p class="font-weight-bold">Rating:</p>
+              <h6 class="text-muted">{{ profile_user.rating }}</h6>
+            </div>
+            <div class="col-sm-6">
+              <p class="font-weight-bold">Contributions:</p>
+              <h6 class="text-muted">{{ profile_user.contribution }}</h6>
+            </div>
+            <div class="col-sm-6">
+              <p class="font-weight-bold">Country:</p>
+              <h6 class="text-muted">{{ profile_user.country }}</h6>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-       </div>
+  </div>
 </div>
 
 {% endblock %}

@@ -1,3 +1,4 @@
+from ctypes import resize
 import psycopg2
 import logging
 import sys
@@ -35,7 +36,7 @@ def close_database_connection(db, dbConn):
 
 def db_get_user_with_handle(db, dbConn, handle):
     # Returns the user with handle=handle if user exists, else returns None
-    logging.debug("Querying User with Handle %s:", handle)
+    logging.info("Querying User with Handle %s:", handle)
     if handle == "":
         logging.warning("Querying user with empty handle")
         return None
@@ -61,7 +62,7 @@ def db_get_user_with_handle(db, dbConn, handle):
         return None
 
 def db_insert_user(db, dbConn, user):
-    logging.debug("Adding user: %s to users table", user.getStr() )
+    logging.info("Adding user: %s to users table", user.getStr() )
     assert len(user.handle) != 0
     assert len(user.firstname) != 0
     assert len(user.password) != 0
@@ -82,7 +83,7 @@ def db_insert_user(db, dbConn, user):
         logging.debug("Insert query into users tables was successful")
 
 def db_update_user(db, dbConn, handle, new_user):
-    logging.debug("Updating user with handle: %s", handle)
+    logging.info("Updating user with handle: %s", handle)
     logging.debug("New user attributes: %s", new_user.getStr())
 
     if db == None:
@@ -99,10 +100,10 @@ def db_update_user(db, dbConn, handle, new_user):
         logging.critical("Error updating the users table: %s", e)
         dbConn.rollback()
     else:
-        logging.debug("Update query into users table was successful.")
+        logging.info("Update query into users table was successful.")
 
 def db_delete_user(db, dbConn, handle):
-    logging.debug("Deleteing user: %s", handle)
+    logging.info("Deleteing user: %s", handle)
 
     if db == None:
         logging.critical("Updating user with None db cursor!!")
@@ -118,11 +119,11 @@ def db_delete_user(db, dbConn, handle):
         logging.critical("Error deleting the user from users table: %s", e)
         dbConn.rollback()
     else:
-        logging.debug("Deleting user was successful.")
+        logging.info("Deleting user was successful.")
 
 def db_get_top_rated_users(db, dbConn, num):
     assert num >= 0
-    logging.debug("Querying database for %d top rated users", num)
+    logging.info("Querying database for %d top rated users", num)
 
     if db == None:
         logging.critical("Updating user with None db cursor!!")
@@ -143,7 +144,7 @@ def db_get_top_rated_users(db, dbConn, num):
 
 def db_get_top_contributors_users(db, dbConn, num):
     assert num >= 0
-    logging.debug("Querying database for %d top contributors users", num)
+    logging.info("Querying database for %d top contributors users", num)
 
     if db == None:
         logging.critical("Updating user with None db cursor!!")
@@ -161,3 +162,61 @@ def db_get_top_contributors_users(db, dbConn, num):
         return None
 
     return result
+
+def db_get_countries(db, dbConn):
+    logging.info("Querying database for coutries name")
+
+    if db == None:
+        logging.critical("Updating user with None db cursor!!")
+        return 
+    
+    countries_query = sql_countries 
+    logging.debug("Sql query for countries: %s", countries_query)
+
+    try:
+        db.execute(countries_query)
+        result = db.fetchall()
+        logging.debug(result)
+    except Exception as e:
+        logging.critical("Error querying countries with prefix. Error %s", e)
+        return None
+    return result
+
+
+#TODO: complete function when more tables are added
+def db_get_users_with(db, dbConn, country, handle, rcmp, rating, cntrcmp, contribution, fcmp, numfriend, cnstcmp, numcontest):
+    logging.info("Querying database for users with provided attributes")
+    logging.debug("Handle: %s", handle)
+    logging.debug("Country: %s", country)
+    logging.debug("Contributions: %s", contribution)
+    logging.debug("Numfriends: %s", numfriend)
+    logging.debug("Numcontest: %s", numcontest)
+    logging.debug("rcmp: %s, cntrcmp: %s, fcmp: %s, cnstcmp: %s", rcmp, cntrcmp, fcmp, cnstcmp)
+    
+    cmp_to_op = { 'ge': '>=', 'gt': '>', 'lt': '<', 'le': '<='}
+
+    def transform_handle(handle):
+        t_handle = "%"
+        for c in handle:
+            t_handle += c
+            t_handle += '%'
+        return t_handle
+    if country == "":
+        country = "%"
+    
+    try:
+        users_query = sql_users % {'handle': transform_handle(handle), 'rop': cmp_to_op[rcmp], 'cntrop': cmp_to_op[cntrcmp], 'rating': rating, 'contribution': contribution, 'country': country }
+        logging.debug("Users search query: %s", users_query)
+        db.execute(users_query)
+        result = db.fetchall()
+        logging.debug(result)
+    except Exception as e:
+        logging.critical("Error querying database for users. Error %s", e)
+        return None
+    return result
+
+
+
+
+
+

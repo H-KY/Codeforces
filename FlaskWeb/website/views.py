@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, flash, request, redirect
+from os import defpath
+from flask import Blueprint, render_template, flash, request, redirect, jsonify
 from flask.helpers import url_for
 from flask_login import  current_user, logout_user, login_user
 from website.database import *
@@ -22,10 +23,10 @@ def home():
     top_contributors_users = db_get_top_contributors_users(website.db, website.dbConn, num_top_contributors)
     return render_template("home.html", user=current_user, top_rated_users = top_rated_users, top_contributors_users= top_contributors_users) 
 
-@views.route('/profile/<handle>/home', methods=['GET', 'POST'])
-def profilehome(handle):
-    logging.debug("User: %s profile was requested", handle)
-    return render_template("profile_home.html", user=current_user)
+# @views.route('/profile/<handle>/home', methods=['GET', 'POST'])
+# def profilehome(handle):
+    # logging.debug("User: %s profile was requested", handle)
+    # return render_template("profile_home.html", user=current_user)
 
 @views.route('/profile/<handle>/blog', methods=['GET', 'POST'])
 def profileblog(handle):
@@ -49,8 +50,34 @@ def profilefriend(handle):
 
 @views.route('/profile/<handle>', methods=['GET', 'POST'])
 def profile(handle):
+    #TODO, pass both current_user and handle into the render_template
     logging.info("User: %s profile was requested", handle)
-    return render_template("home.html", user=current_user)
+    
+    profile_user = db_get_user_with_handle(website.db, website.dbConn, handle)
+    if profile_user == None:
+        return redirect(url_for('views.home'), users= current_user)
+
+    return render_template("profile_home.html", user=current_user, profile_user = website.User(profile_user))
+
+@views.route('/users', methods=['GET', 'POST'])
+def users():
+    logging.info("Users search page request")
+    #if request.method == 'POST':
+    #no need to handle it separately
+    country = request.args.get('country', default = "", type=str)
+    handle = request.args.get('handle', default = "", type=str) 
+    rcmp = request.args.get('ratcmp', default="ge", type=str)
+    rating = request.args.get('rating', default=0, type=int)
+    ctrbcmp = request.args.get('ctrbcmp', default="ge", type=str)
+    contributions = request.args.get('contribution', default=0, type=int)
+    fcmp = request.args.get('fcmp', default="ge", type=str)
+    numfriends = request.args.get('numfriends', default=0, type=int)
+    cnstcmp = request.args.get('cnstcmp', default="ge", type=str)
+    numcontests = request.args.get('numcontests', default=0, type=int)
+
+    users = db_get_users_with(website.db, website.dbConn, country, handle, rcmp, rating, ctrbcmp, contributions, fcmp, numfriends, cnstcmp, numcontests)
+    countries = db_get_countries(website.db, website.dbConn)
+    return render_template("users.html", user = current_user, users= users, countries = countries)
 
 
 @views.route('/profile/<handle>/edit', methods=['GET', 'POST'])

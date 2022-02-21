@@ -37,3 +37,17 @@ sql_top_x_contributors_users = """
                         ORDER BY users.contribution DESC, users.rating DESC
                         LIMIT %(num)d;
                     """
+
+sql_countries = """
+                         SELECT DISTINCT users.country
+                         FROM users
+                         ORDER BY users.country;
+                    """
+
+sql_users = """
+                SELECT users.handle, users.rating, users.contribution
+                FROM users
+                WHERE users.handle LIKE '%(handle)s' AND users.rating %(rop)s %(rating)d AND users.contribution %(cntrop)s %(contribution)d AND users.country LIKE '%(country)s'
+                LIMIT 100;
+
+            """
