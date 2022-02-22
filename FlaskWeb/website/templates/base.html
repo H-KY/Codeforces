@@ -101,7 +101,7 @@
       <a href="{{ url_for('views.home') }}">HOME</a>
       {% endif %}
       <a href="{{ url_for('views.problemSet') }}">PROBLEMSET</a>
-      <a href="#">CONTESTS</a>
+      <a href="{{ url_for('views.contestlist') }}">CONTESTS</a>
       <a href="#">BLOGS</a>
       <a href="{{ url_for('views.users') }}">USERS</a>
     </div>
@@ -123,9 +123,8 @@
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    {% endif %} {% endfor %} {% endif %} {% endwith %}
-
-    {% block content %} {% endblock %}</div>
+    {% endif %} {% endfor %} {% endif %} {% endwith %} {% block content %} {%
+    endblock %}
 
     <script
       src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
@@ -262,6 +261,5 @@
     .container-fluid {
       padding: 10 !important;
     }
-
   </style>
 </html>

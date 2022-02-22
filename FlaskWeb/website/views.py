@@ -248,9 +248,17 @@ def delete_account(handle):
     logging.info("Got Account delete requres from user: %s", handle)
     assert db_get_user_with_handle(website.db, website.dbConn, current_user.handle) != None
     logging.info("Deleting user from database")
-    db_delete_user(website.db, website.dbConn, current_user.handle)
-    logging.info("Logging out user and redirecting to home page")
-    logout_user()
+    event = db_delete_user(website.db, website.dbConn, current_user.handle)
+
+    if event:
+        flash('Deletion of account successful.', category='success')
+
+        logging.info("Logging out user and redirecting to home page")
+        logout_user()
+    else:
+        flash('Error in deleting account.' , category='error')
+
+
 
     return redirect(url_for('views.home'))
 
@@ -285,4 +293,55 @@ def make_unfollower(handle):
         flash('Some error occured' + handle, category='error')
 
     return jsonify({})
+
+@views.route('/contest/<id>/problem/<index>', methods=['GET'])
+def problem(id, index):
+    logging.info("Problem with index: %s in contest: %d is requested", index, int(id))
+
+
+    contest = db_get_contest(website.db, website.dbConn, int(id))
+    if contest == None:
+        return redirect(url_for('views.home'))
+
+    problem = db_get_problem(website.db, website.dbConn, int(id), index)
+    if problem == None:
+        #TODO redirect to contest
+        return redirect(url_for('views.home'))
+
+    return render_template("problem.html", problem = website.Problem(problem), user=current_user, contest = website.Contest(contest))
+
+@views.route('/contests')
+def contestlist():
+    logging.info("Contest page is requested")
+    ongoing_contests = db_get_ongoing_contests(website.db, website.dbConn)
+    for (idx,contest) in enumerate(ongoing_contests):
+        ongoing_contests[idx] = website.Contest(contest)
+
+    curr_page = request.args.get('pageNo', default=1, type=int)
+    contest_per_page = int(website.parser['contest']['contest_per_page'])
+
+    first_page = (curr_page == 1)
+    last_page = False
+    finished_contests = db_get_finished_contests(website.db, website.dbConn, (curr_page-1)*contest_per_page, contest_per_page+1)
+
+    if len(finished_contests) != contest_per_page + 1:
+        last_page = True
+    else:
+        finished_contests.pop()
+
+    for (idx,contest) in enumerate(finished_contests):
+        finished_contests[idx] = website.Contest(contest)
+
+    upcoming_contests = db_get_upcoming_contests(website.db,website.dbConn)
+    for (idx,contest) in enumerate(upcoming_contests):
+        upcoming_contests[idx] = website.Contest(contest)
+
+    recent_contests = []
+    if current_user.is_authenticated:
+        recent_contests = db_get_recent_contests(website.db, website.dbConn, current_user.handle)
+        for (idx, contest) in enumerate(recent_contests):
+            recent_contests[idx] = website.Contest(contest)
+    
+    return render_template("contests.html", user=current_user, ongoing_contests=ongoing_contests, finished_contests=finished_contests, upcoming_contests=upcoming_contests, recent_contests=recent_contests,  first_page=first_page, last_page=last_page, curr_page=curr_page)
+
 

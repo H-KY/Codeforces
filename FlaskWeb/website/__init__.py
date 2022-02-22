@@ -1,3 +1,6 @@
+import datetime
+import logging
+
 parser = None
 
 db = None
@@ -39,15 +42,27 @@ class Problem:
     def __init__(self, problem):
         (problemId, name, constestId, problemIndex, rating, tags) = problem
         self.problemId = problemId
+        (name, constestId, problemIndex, rating, tags) = problem
         self.name = name
         self.constestId = constestId
         self.problemIndex = problemIndex
         self.rating = rating
         self.tags = tags
-        self.c_submissions = 0
+
+        self.correct_submissions = 0
 
 
-
+class Contest:
+    def __init__(self, contest):
+        (contestId, contestName, contestDate, problems, status, duration) = contest
+        self.contestId = contestId
+        self.contestName = contestName
+        # self.contestDate = datetime.datetime(contestDate)
+        self.contestDate = datetime.datetime.strptime(str(contestDate), '%Y-%m-%d')
+        self.problems = problems
+        self.status = status
+        self.duration = duration
+         
 #Points to be noted 
 #1. Database will return tuples
 #2. If required tuples can be converted to the User class

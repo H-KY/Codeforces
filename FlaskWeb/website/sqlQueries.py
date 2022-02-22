@@ -96,3 +96,43 @@ sql_search_problems_without_tags = """
             """
 
 
+<<<<<<< HEAD
+=======
+sql_get_problem = """
+                SELECT *
+                FROM problems
+                WHERE problems.problemIndex = '%(index)s' AND problems.contestId = %(contestId)d;
+            """
+
+sql_get_contest = """
+                SELECT *
+                FROM contests
+                WHERE contests.contestId = %(contestId)d;
+            """
+
+sql_get_ongoing_contests = """
+                SELECT *
+                FROM contests
+                WHERE contests.status = 'ONGOING';
+            """
+
+sql_get_upcoming_contests = """
+                SELECT *
+                FROM contests
+                WHERE contests.status = 'UPCOMING';
+            """
+
+sql_get_finished_contests = """
+                SELECT *
+                FROM contests
+                WHERE contests.status = 'FINISHED';
+            """
+
+sql_get_recent_contests = """
+                SELECT DISTINCT submissions.contestId
+                FROM submissions
+                WHERE submissions.author = '%(handle)s'
+                ORDER BY submissions.submissionTime
+                LIMIT 5;
+            """
+>>>>>>> b255f71 (Add support for ProblemSet)

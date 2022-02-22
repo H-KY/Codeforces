@@ -120,8 +120,10 @@ def db_delete_user(db, dbConn, handle):
     except Exception as e:
         logging.critical("Error deleting the user from users table: %s", e)
         dbConn.rollback()
+        return False
     else:
         logging.info("Deleting user was successful.")
+    return True
 
 def db_get_top_rated_users(db, dbConn, num):
     assert num >= 0
@@ -342,6 +344,472 @@ def db_get_problems_with(db, dbConn, rating, rcmp, tags, offset, length):
         logging.info('Fetching problems successful')
     return result
         
+def db_get_num_followers(db, dbConn, handle):
+    logging.info("Querying #num of followers of %s", handle)
+
+    user_num_friend_query = sql_num_followers % {'handle1': handle}
+
+    try:
+        db.execute(user_num_friend_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Error querying database for friends of %s", handle)
+        dbConn.rollback()
+        return 0
+    return result[0][0]
+    
+
+def db_is_follower(db, dbConn, handle1, handle2):
+
+    logging.info("Check if %s is a follower of %s", handle1, handle2)
+    user_follower_query = sql_check_follower % {'handle1': handle1, 'handle2': handle2}
+    logging.debug("Query: %s", user_follower_query)
+    try:
+        db.execute(user_follower_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Error querying database when checking follower. Error %s", e)
+        dbConn.rollback()
+        return False
+    assert len(result) <= 1
+    return (len(result) == 1)
+
+def db_make_follower(db, dbConn, handle1, handle2):
+    logging.info("Inserting into friends table: (%s, %s)", handle1, handle2)
+    user_make_follower_query = sql_make_follower % {'handle1': handle1, 'handle2': handle2}
+    logging.debug("Query: %s", user_make_follower_query)
+
+    try:
+        db.execute(user_make_follower_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Inserting into friends table unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return False
+    else:
+        logging.info("Insertion is successful")
+    return True
+
+def db_make_unfollower(db, dbConn, handle1, handle2):
+    logging.info("Deleting from friends table: (%s, %s)", handle1, handle2)
+    user_make_unfollower_query = sql_make_unfollower % {'handle1': handle1, 'handle2': handle2}
+    logging.debug("Query: %s", user_make_unfollower_query)
+
+    try:
+        db.execute(user_make_unfollower_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Deleting from friends table unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return False
+    else:
+        logging.info("Deletion is successful")
+    return True
+
+def db_get_all_problem_tags(db, dbConn):
+    logging.info("Querying database for all tags")
+    problem_all_tag_query = sql_get_tags 
+    logging.debug("Query %s", problem_all_tag_query)
+
+    try:
+        db.execute(problem_all_tag_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Fetching tags unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return []
+    else:
+        logging.info("Fetching tags successful")
+    return result[0][0]
+
+def db_get_problems_with(db, dbConn, rating, rcmp, tags, offset, length):
+    logging.info("Querying database for problems with provided attributes")
+    logging.debug("Rating: %s", rating)
+    logging.debug("Rcmp: %s", rcmp)
+    logging.debug("Tags: [")
+    for tag in tags:
+        logging.debug("%s,", tag)
+    logging.debug("]")
+    logging.debug("Offset: %s", offset)
+    logging.debug("Length: %s", length)
+    cmp_to_op = { 'ge': '>=', 'gt': '>', 'lt': '<', 'le': '<='}
+
+    if '' in tags:
+        tags.remove('') #remove this if present
+    if len(tags) > 0:
+        problem_search_query = sql_search_problems % {'rating':rating, 'rop':cmp_to_op[rcmp], 'ptags':str(tags), 'length':length, 'offset':offset }
+    else:
+        problem_search_query = sql_search_problems_without_tags % {'rating':rating, 'rop':cmp_to_op[rcmp], 'length':length, 'offset':offset }
+    logging.debug(problem_search_query)
+    try:
+        db.execute(problem_search_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical('Fetching problems was unsuccesful. Error %s', e)
+        dbConn.rollback()
+        return []
+    else:
+        logging.info('Fetching problems successful')
+    return result
+        
+
+    return result
+
+def db_get_num_followers(db, dbConn, handle):
+    logging.info("Querying #num of followers of %s", handle)
+
+    user_num_friend_query = sql_num_followers % {'handle1': handle}
+
+    try:
+        db.execute(user_num_friend_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Error querying database for friends of %s", handle)
+        dbConn.rollback()
+        return 0
+    return result[0][0]
+    
+
+def db_is_follower(db, dbConn, handle1, handle2):
+
+    logging.info("Check if %s is a follower of %s", handle1, handle2)
+    user_follower_query = sql_check_follower % {'handle1': handle1, 'handle2': handle2}
+    logging.debug("Query: %s", user_follower_query)
+    try:
+        db.execute(user_follower_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Error querying database when checking follower. Error %s", e)
+        dbConn.rollback()
+        return False
+    assert len(result) <= 1
+    return (len(result) == 1)
+
+def db_make_follower(db, dbConn, handle1, handle2):
+    logging.info("Inserting into friends table: (%s, %s)", handle1, handle2)
+    user_make_follower_query = sql_make_follower % {'handle1': handle1, 'handle2': handle2}
+    logging.debug("Query: %s", user_make_follower_query)
+
+    try:
+        db.execute(user_make_follower_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Inserting into friends table unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return False
+    else:
+        logging.info("Insertion is successful")
+    return True
+
+def db_make_unfollower(db, dbConn, handle1, handle2):
+    logging.info("Deleting from friends table: (%s, %s)", handle1, handle2)
+    user_make_unfollower_query = sql_make_unfollower % {'handle1': handle1, 'handle2': handle2}
+    logging.debug("Query: %s", user_make_unfollower_query)
+
+    try:
+        db.execute(user_make_unfollower_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Deleting from friends table unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return False
+    else:
+        logging.info("Deletion is successful")
+    return True
+
+def db_get_all_problem_tags(db, dbConn):
+    logging.info("Querying database for all tags")
+    problem_all_tag_query = sql_get_tags 
+    logging.debug("Query %s", problem_all_tag_query)
+
+    try:
+        db.execute(problem_all_tag_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Fetching tags unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return []
+    else:
+        logging.info("Fetching tags successful")
+    return result[0][0]
+
+def db_get_problems_with(db, dbConn, rating, rcmp, tags, offset, length):
+    logging.info("Querying database for problems with provided attributes")
+    logging.debug("Rating: %s", rating)
+    logging.debug("Rcmp: %s", rcmp)
+    logging.debug("Tags: [")
+    for tag in tags:
+        logging.debug("%s,", tag)
+    logging.debug("]")
+    logging.debug("Offset: %s", offset)
+    logging.debug("Length: %s", length)
+    cmp_to_op = { 'ge': '>=', 'gt': '>', 'lt': '<', 'le': '<='}
+
+    if '' in tags:
+        tags.remove('') #remove this if present
+    if len(tags) > 0:
+        problem_search_query = sql_search_problems % {'rating':rating, 'rop':cmp_to_op[rcmp], 'ptags':str(tags), 'length':length, 'offset':offset }
+    else:
+        problem_search_query = sql_search_problems_without_tags % {'rating':rating, 'rop':cmp_to_op[rcmp], 'length':length, 'offset':offset }
+    logging.debug(problem_search_query)
+    try:
+        db.execute(problem_search_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical('Fetching problems was unsuccesful. Error %s', e)
+        dbConn.rollback()
+        return []
+    else:
+        logging.info('Fetching problems successful')
+    return result
+        
+
+    return result
+
+def db_get_num_followers(db, dbConn, handle):
+    logging.info("Querying #num of followers of %s", handle)
+
+    user_num_friend_query = sql_num_followers % {'handle1': handle}
+
+    try:
+        db.execute(user_num_friend_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Error querying database for friends of %s", handle)
+        dbConn.rollback()
+        return 0
+    return result[0][0]
+    
+
+def db_is_follower(db, dbConn, handle1, handle2):
+
+    logging.info("Check if %s is a follower of %s", handle1, handle2)
+    user_follower_query = sql_check_follower % {'handle1': handle1, 'handle2': handle2}
+    logging.debug("Query: %s", user_follower_query)
+    try:
+        db.execute(user_follower_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Error querying database when checking follower. Error %s", e)
+        dbConn.rollback()
+        return False
+    assert len(result) <= 1
+    return (len(result) == 1)
+
+def db_make_follower(db, dbConn, handle1, handle2):
+    logging.info("Inserting into friends table: (%s, %s)", handle1, handle2)
+    user_make_follower_query = sql_make_follower % {'handle1': handle1, 'handle2': handle2}
+    logging.debug("Query: %s", user_make_follower_query)
+
+    try:
+        db.execute(user_make_follower_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Inserting into friends table unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return False
+    else:
+        logging.info("Insertion is successful")
+    return True
+
+def db_make_unfollower(db, dbConn, handle1, handle2):
+    logging.info("Deleting from friends table: (%s, %s)", handle1, handle2)
+    user_make_unfollower_query = sql_make_unfollower % {'handle1': handle1, 'handle2': handle2}
+    logging.debug("Query: %s", user_make_unfollower_query)
+
+    try:
+        db.execute(user_make_unfollower_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Deleting from friends table unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return False
+    else:
+        logging.info("Deletion is successful")
+    return True
+
+def db_get_all_problem_tags(db, dbConn):
+    logging.info("Querying database for all tags")
+    problem_all_tag_query = sql_get_tags 
+    logging.debug("Query %s", problem_all_tag_query)
+
+    try:
+        db.execute(problem_all_tag_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Fetching tags unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return []
+    else:
+        logging.info("Fetching tags successful")
+    return result[0][0]
+
+def db_get_problems_with(db, dbConn, rating, rcmp, tags, offset, length):
+    logging.info("Querying database for problems with provided attributes")
+    logging.debug("Rating: %s", rating)
+    logging.debug("Rcmp: %s", rcmp)
+    logging.debug("Tags: [")
+    for tag in tags:
+        logging.debug("%s,", tag)
+    logging.debug("]")
+    logging.debug("Offset: %s", offset)
+    logging.debug("Length: %s", length)
+    cmp_to_op = { 'ge': '>=', 'gt': '>', 'lt': '<', 'le': '<='}
+
+    if '' in tags:
+        tags.remove('') #remove this if present
+    if len(tags) > 0:
+        problem_search_query = sql_search_problems % {'rating':rating, 'rop':cmp_to_op[rcmp], 'ptags':str(tags), 'length':length, 'offset':offset }
+    else:
+        problem_search_query = sql_search_problems_without_tags % {'rating':rating, 'rop':cmp_to_op[rcmp], 'length':length, 'offset':offset }
+    logging.debug(problem_search_query)
+    try:
+        db.execute(problem_search_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical('Fetching problems was unsuccesful. Error %s', e)
+        dbConn.rollback()
+        return []
+    else:
+        logging.info('Fetching problems successful')
+    return result
+       
+def db_get_problem(db, dbConn, contestId, index):
+    logging.info("Fetching problem with index: %s in contest: %d form database", index, contestId)
+
+    get_problem_query = sql_get_problem % {'index': index, 'contestId': contestId}
+    logging.debug("Query %s", get_problem_query)
+    try:
+        db.execute(get_problem_query)
+        result = db.fetchall()
+        assert(len(result) <= 1)
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Error fetching problem from database. Error %s", e)
+        dbConn.rollback()
+        return None
+    else:
+        logging.info("Fetching problem successful")
+
+    if len(result) == 0:
+        return None
+    return result[0]
+
+def db_get_contest(db, dbConn, id):
+    logging.info('Fetching contest with id: %d', id)
+    
+    get_contest_query = sql_get_contest % {'contestId': id}
+    logging.debug("Query: %s", get_contest_query)
+
+    try:
+        db.execute(get_contest_query)
+        result = db.fetchall()
+        assert len(result) <= 1
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical('Error fetching contest from database. Error %s', e)
+        return None
+    else:
+        logging.info('Fetching contest successful')
+
+    if len(result) == 0:
+        return None
+    return result[0]
+
+
+def db_get_ongoing_contests(db, dbConn):
+    logging.info("Fetching ongoing contests")
+    ongoing_contests_query = sql_get_ongoing_contests
+    logging.debug("Query: %s", ongoing_contests_query)
+
+    try:
+        db.execute(ongoing_contests_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical('Error fetching ongoing contests. Error %s', e)
+        return []
+    else:
+        logging.info('Fetching ongoing contests successful')
+
+    return result
+
+def db_get_upcoming_contests(db, dbConn):
+    logging.info("Fetching upcoming contests")
+    upcoming_contests_query = sql_get_upcoming_contests
+    logging.debug("Query: %s", upcoming_contests_query)
+
+    try:
+        db.execute(upcoming_contests_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical('Error fetching ongoing contests. Error %s', e)
+        return []
+    else:
+        logging.info('Fetching ongoing contests successful')
+
+    return result
+
+def db_get_finished_contests(db, dbConn, offset, length):
+    logging.info("Fetching finished contests")
+    finished_contests_query = sql_get_finished_contests % {'offset': offset, 'length': length}
+    logging.debug("Query %s", finished_contests_query)
+
+    try:
+        db.execute(finished_contests_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical('Error fetching finished contests. Error %s', e)
+        return []
+
+    return result
+
+def db_get_recent_contests(db, dbConn, handle):
+    logging.info("Fetching contests with recent submission")
+    recent_contests_query = sql_get_recent_contests % {'handle': handle}
+    logging.debug("Query: %s", recent_contests_query)
+
+    try:
+        db.execute(recent_contests_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Error fetching contests with recent submission. Error %s", e)
+        return []
+
+    return result
 
 
 

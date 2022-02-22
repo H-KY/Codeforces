@@ -9,8 +9,8 @@ function deleteNote(noteId) {
 
 function executefollow(profile_handle) {
   var follow_link, profile_link;
-  follow_link = `${window.follow_link}`
-  profile_link = `${window.profile_link}`
+  follow_link = `${window.follow_link}`;
+  profile_link = `${window.profile_link}`;
   fetch(follow_link, {
     method: "GET",
   }).then((_res) => {
@@ -18,10 +18,10 @@ function executefollow(profile_handle) {
   });
 }
 
-function executeunfollow(profile_handle){
+function executeunfollow(profile_handle) {
   var unfollow_link, profile_link;
-  unfollow_link = `${window.unfollow_link}`
-  profile_link = `${window.profile_link}`
+  unfollow_link = `${window.unfollow_link}`;
+  profile_link = `${window.profile_link}`;
   fetch(unfollow_link, {
     method: "GET",
   }).then((_res) => {
@@ -44,6 +44,10 @@ function search_country() {
       a[i].style.display = "none";
     }
   }
+}
+
+function showTags() {
+  document.getElementById("panel").style.display = "block";
 }
 
 // Code taken from https://stackoverflow.com/questions/1090948/change-url-parameters-and-specify-defaults-using-javascript
