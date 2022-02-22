@@ -1,7 +1,7 @@
 from os import defpath
 from flask import Blueprint, render_template, flash, request, redirect, jsonify
 from flask.helpers import url_for
-from flask_login import  current_user, logout_user, login_user
+from flask_login import  current_user, logout_user, login_user, login_required
 from website.database import *
 from werkzeug.security import generate_password_hash
 import website
@@ -55,29 +55,121 @@ def profile(handle):
     
     profile_user = db_get_user_with_handle(website.db, website.dbConn, handle)
     if profile_user == None:
-        return redirect(url_for('views.home'), users= current_user)
+        return redirect(url_for('views.home'))
+    
+    profile_userObj = website.User(profile_user)
+    profile_user_friends = db_get_num_followers(website.db, website.dbConn, handle)
 
-    return render_template("profile_home.html", user=current_user, profile_user = website.User(profile_user))
+    profile_userObj.numfollowers = profile_user_friends
+
+    user_follows_profile = False
+    if current_user.is_authenticated:
+        user_follows_profile = db_is_follower(website.db, website.dbConn, current_user.handle, profile_userObj.handle) 
+
+    return render_template("profile_home.html", user=current_user, profile_user = profile_userObj, user_follows_profile = user_follows_profile)
+
+
+#TODO: make this user sepecific
+user_attribute_store = dict()
+#ideally we should not maintain this
+#but kya kare itna atta nahi hai hume
+
 
 @views.route('/users', methods=['GET', 'POST'])
 def users():
     logging.info("Users search page request")
     #if request.method == 'POST':
     #no need to handle it separately
-    country = request.args.get('country', default = "", type=str)
-    handle = request.args.get('handle', default = "", type=str) 
-    rcmp = request.args.get('ratcmp', default="ge", type=str)
-    rating = request.args.get('rating', default=0, type=int)
-    ctrbcmp = request.args.get('ctrbcmp', default="ge", type=str)
-    contributions = request.args.get('contribution', default=0, type=int)
-    fcmp = request.args.get('fcmp', default="ge", type=str)
-    numfriends = request.args.get('numfriends', default=0, type=int)
-    cnstcmp = request.args.get('cnstcmp', default="ge", type=str)
-    numcontests = request.args.get('numcontests', default=0, type=int)
 
-    users = db_get_users_with(website.db, website.dbConn, country, handle, rcmp, rating, ctrbcmp, contributions, fcmp, numfriends, cnstcmp, numcontests)
+    if request.method == 'POST' or len(user_attribute_store) == 0:
+        user_attribute_store['country'] = request.form.get('country', default = "", type=str)
+        user_attribute_store['handle'] = request.form.get('handle', default = "", type=str) 
+        user_attribute_store['rcmp'] = request.form.get('ratcmp', default="ge", type=str)
+        user_attribute_store['rating'] = request.form.get('rating', default=0, type=int)
+        user_attribute_store['ctrbcmp'] = request.form.get('ctrbcmp', default="ge", type=str)
+        user_attribute_store['contributions'] = request.form.get('contribution', default=0, type=int)
+        user_attribute_store['fcmp'] = request.form.get('fcmp', default="ge", type=str)
+        user_attribute_store['numfollowers'] = request.form.get('numfollowers', default=0, type=int)
+        user_attribute_store['cnstcmp'] = request.form.get('cnstcmp', default="ge", type=str)
+        user_attribute_store['numcontests'] = request.form.get('numcontests', default=0, type=int)
+
+    curr_page = request.args.get('pageNo', default=1, type=int)
+    users_per_page = int(website.parser['users']['users_per_page'])
+    users = db_get_users_with(website.db, website.dbConn, 
+            user_attribute_store['country'],
+            user_attribute_store['handle'],
+            user_attribute_store['rcmp'],
+            user_attribute_store['rating'],
+            user_attribute_store['ctrbcmp'],
+            user_attribute_store['contributions'],
+            user_attribute_store['fcmp'],
+            user_attribute_store['numfollowers'],
+            user_attribute_store['cnstcmp'],
+            user_attribute_store['numcontests'],
+            (curr_page-1)*users_per_page, users_per_page+1)
+    if curr_page != 1 and len(users) == 0:
+        return redirect(url_for('views.users') + '?pageNo=1'  )
+
+    first_page = (curr_page == 1)
+    last_page = False
+
+    if len(users) != users_per_page + 1:
+        last_page = True
+    else:
+        users.pop()
+
+
     countries = db_get_countries(website.db, website.dbConn)
-    return render_template("users.html", user = current_user, users= users, countries = countries)
+
+    return render_template("users.html", user = current_user, users= users, countries = countries, first_page = first_page, last_page =last_page, curr_page = curr_page)
+
+
+#TODO make this separate for each user
+problem_set_tag_store = dict()
+
+@views.route('/problemSet', methods=['GET', 'POST'])
+def problemSet():
+
+    if request.method == 'POST' or len(problem_set_tag_store) == 0:
+        problem_set_tag_store['rating'] = request.form.get('rating', default=0, type=int)
+        problem_set_tag_store['rcmp'] = request.form.get('rcmp', default="ge", type=int)
+        problem_set_tag_store['tags'] = request.form.getlist('tags')
+
+    curr_page = request.args.get('pageNo', default = 1, type=int)
+    problems_per_page = int(website.parser['users']['problems_per_page'])
+
+    logging.debug("Rating: %s", problem_set_tag_store['rating'])
+    logging.debug("Tags: [")
+    for tag in problem_set_tag_store['tags']:
+        logging.debug("%s,", tag)
+    logging.debug("]")
+
+
+    problems = db_get_problems_with(website.db, website.dbConn, 
+            problem_set_tag_store['rating'], 
+            problem_set_tag_store['rcmp'],
+            problem_set_tag_store['tags'],
+            (curr_page-1)*problems_per_page, problems_per_page+1)
+            
+
+    if curr_page != 1 and len(problems) == 0:
+        return redirect(url_for('views.problemSet') + '?pageNo=1'  )
+
+    first_page = (curr_page == 1)
+    last_page = False
+    if len(problems) != problems_per_page + 1:
+        last_page = True
+    else:
+        problems.pop()
+
+    for (idx, problem) in enumerate(problems):
+        problems[idx] = website.Problem(problem)
+
+    all_tags = db_get_all_problem_tags(website.db, website.dbConn)
+
+    # all_tags = db_get_all_problem_tags(website.db, website.dbConn)
+    return render_template("problemSet.html", user = current_user, all_tags = all_tags, problems = problems, curr_page=curr_page, first_page=first_page, last_page=last_page)
+
 
 
 @views.route('/profile/<handle>/edit', methods=['GET', 'POST'])
@@ -161,5 +253,36 @@ def delete_account(handle):
     logout_user()
 
     return redirect(url_for('views.home'))
+
+@views.route('/follow/<handle>', methods=['GET'])
+@login_required
+def make_follower(handle):
+    logging.info("User %s request to become follower of %s", current_user.handle, handle)
     
+    is_follower = db_is_follower(website.db, website.dbConn, current_user.handle, handle)
+    assert not is_follower
+    
+    event = db_make_follower(website.db, website.dbConn, current_user.handle, handle)
+    if event:
+        flash('You have become a follower of ' + handle, category='success')
+    else:
+        flash('Some error occured' + handle, category='error')
+
+    return jsonify({})
+
+@views.route('/unfollow/<handle>', methods=['GET'])
+@login_required
+def make_unfollower(handle):
+    logging.info("User %s request to unfollower of %s", current_user.handle, handle)
+    
+    is_follower = db_is_follower(website.db, website.dbConn, current_user.handle, handle)
+    assert is_follower
+    
+    event = db_make_unfollower(website.db, website.dbConn, current_user.handle, handle)
+    if event:
+        flash('You have unfollowed ' + handle, category='success')
+    else:
+        flash('Some error occured' + handle, category='error')
+
+    return jsonify({})
 

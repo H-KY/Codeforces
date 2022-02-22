@@ -18,6 +18,7 @@ class User:
         self.contribution = contribution
         self.password = password
         self.authenticated = False
+        self.numfollowers = None #Note: only non None for profile function other always null
     
     def is_active(self):
         return True
@@ -34,6 +35,18 @@ class User:
     def getStr(self):
         return "('%s', '%s', '%s', '%s', %s, %s, '%s')" % (self.handle, self.firstname, self.lastname, self.country, self.rating, self.contribution, str(self.password))
         
+class Problem:
+    def __init__(self, problem):
+        (problemId, name, constestId, problemIndex, rating, tags) = problem
+        self.problemId = problemId
+        self.name = name
+        self.constestId = constestId
+        self.problemIndex = problemIndex
+        self.rating = rating
+        self.tags = tags
+        self.c_submissions = 0
+
+
 
 #Points to be noted 
 #1. Database will return tuples

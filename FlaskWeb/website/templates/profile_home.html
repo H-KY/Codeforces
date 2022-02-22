@@ -1,5 +1,5 @@
-{% extends "base.html" %} {% block title %} {{ profile_user.handle }} {%
-endblock %} {% block content %}
+{% extends "profile_base.html" %} {% block title %} {{ profile_user.handle }} {%
+endblock %} {% block profile_content %}
 
 <!-- Font Awesome -->
 <link
@@ -32,7 +32,42 @@ endblock %} {% block content %}
           <div class="card-block text-center text-white">
             <i class="fas fa-user-tie fa-7x mt-5"></i>
             <h2 class="font-weight-bold mt-4">{{ profile_user.handle }}</h2>
-            <p>Specialist</p>
+
+            {% if user.is_authenticated and user_follows_profile and user.handle
+            != profile_user.handle %}
+
+            <button
+                onClick="executeunfollow('{{ profile_user.handle }}')"
+              style="
+                background-color: blue;
+                color: white;
+                padding: 16px;
+                font-size: 16px;
+                border: none;
+                width: 100%;
+              "
+            >
+              Unfollow
+            </button>
+            {% elif user.is_authenticated and not user_follows_profile and
+            user.handle != profile_user.handle %}
+            <button
+              onClick="executefollow('{{ profile_user.handle }}')"
+              style="
+                background-color: blue;
+                color: white;
+                padding: 16px;
+                font-size: 16px;
+                border: none;
+                width: 100%;
+              "
+            >
+              Follow
+            </button>
+            {% else %}
+            <p>&nbsp;</p>
+
+            {% endif %}
           </div>
         </div>
         <div class="col-sm-8 bg-black rounded-right">
@@ -57,11 +92,23 @@ endblock %} {% block content %}
               <p class="font-weight-bold">Country:</p>
               <h6 class="text-muted">{{ profile_user.country }}</h6>
             </div>
+
+            <div class="col-sm-6">
+              <p class="font-weight-bold">Followers:</p>
+              <h6 class="text-muted">{{ profile_user.numfollowers }}</h6>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+window.follow_link = "{{ url_for('views.make_follower', handle= profile_user.handle) }}"
+window.unfollow_link = "{{ url_for('views.make_unfollower', handle=profile_user.handle) }}"
+window.profile_link = "{{ url_for('views.profile', handle=profile_user.handle)  }}"
+
+</script>
 
 {% endblock %}

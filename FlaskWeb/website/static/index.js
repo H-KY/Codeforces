@@ -7,6 +7,28 @@ function deleteNote(noteId) {
   });
 }
 
+function executefollow(profile_handle) {
+  var follow_link, profile_link;
+  follow_link = `${window.follow_link}`
+  profile_link = `${window.profile_link}`
+  fetch(follow_link, {
+    method: "GET",
+  }).then((_res) => {
+    window.location.href = profile_link;
+  });
+}
+
+function executeunfollow(profile_handle){
+  var unfollow_link, profile_link;
+  unfollow_link = `${window.unfollow_link}`
+  profile_link = `${window.profile_link}`
+  fetch(unfollow_link, {
+    method: "GET",
+  }).then((_res) => {
+    window.location.href = profile_link;
+  });
+}
+
 /*Taken from internet*/
 function search_country() {
   var input, filter, a, i;

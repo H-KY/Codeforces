@@ -100,7 +100,7 @@
       {% else %}
       <a href="{{ url_for('views.home') }}">HOME</a>
       {% endif %}
-      <a href="#">PROBLEMSET</a>
+      <a href="{{ url_for('views.problemSet') }}">PROBLEMSET</a>
       <a href="#">CONTESTS</a>
       <a href="#">BLOGS</a>
       <a href="{{ url_for('views.users') }}">USERS</a>
@@ -202,7 +202,7 @@
 
     .dropdown-content {
       display: none;
-      position: relative;
+      position: absolute;
       background-color: #f1f1f1;
       min-width: 160px;
       box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);

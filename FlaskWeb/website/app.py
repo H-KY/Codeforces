@@ -12,7 +12,7 @@ website.parser = configparser.ConfigParser(allow_no_value=True)
 website.parser.read('config.cfg')
 
 #Set the log file
-logging.basicConfig(level = logging.DEBUG, filename = website.parser['logInfo']['output_file'])
+logging.basicConfig(format = 'Line No. : %(lineno)d - %(message)s',level = logging.DEBUG, filename = website.parser['logInfo']['output_file'])
 
 #TODO: make a config file storing the details
 #      of database
