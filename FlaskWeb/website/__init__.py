@@ -11,9 +11,10 @@ login_manager = None
 # Maintained for integrity
 # Attributes of user should be passed using this class
 class User:
-    def __init__(self, user):
+    def __init__(self, user, is_admin=False):
         (handle, firstname, lastname, country, rating, contribution, password) = user
         self.handle = handle
+        self.is_admin = is_admin
         self.firstname = firstname
         self.lastname = lastname
         self.country = country
@@ -29,6 +30,9 @@ class User:
     def get_id(self):
         return self.handle
 
+    # def is_admin(self):
+        # return self.admin
+
     def is_authenticated(self):
         return self.authenticated
 
@@ -40,28 +44,28 @@ class User:
         
 class Problem:
     def __init__(self, problem):
-        (problemId, name, constestId, problemIndex, rating, tags) = problem
-        self.problemId = problemId
-        (name, constestId, problemIndex, rating, tags) = problem
+        (name, contestId, problemIndex, rating, tags, points, url) = problem
         self.name = name
-        self.constestId = constestId
+        self.contestId = contestId
         self.problemIndex = problemIndex
         self.rating = rating
         self.tags = tags
+        self.points = points
+        self.url = url
 
         self.correct_submissions = 0
 
 
 class Contest:
     def __init__(self, contest):
-        (contestId, contestName, contestDate, problems, status, duration) = contest
+        (contestId, contestName,  problems, status, duration, contestDate) = contest
         self.contestId = contestId
         self.contestName = contestName
         # self.contestDate = datetime.datetime(contestDate)
-        self.contestDate = datetime.datetime.strptime(str(contestDate), '%Y-%m-%d')
         self.problems = problems
         self.status = status
         self.duration = duration
+        self.contestDate = contestDate
          
 #Points to be noted 
 #1. Database will return tuples

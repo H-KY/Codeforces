@@ -3,9 +3,11 @@ from flask import Blueprint, render_template, flash, request, redirect, jsonify
 from flask.helpers import url_for
 from flask_login import  current_user, logout_user, login_user, login_required
 from website.database import *
+from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
 import website
 import logging
+import json
 
 views = Blueprint('views', __name__)
 
@@ -16,11 +18,11 @@ def unauthorized_callback():
 @views.route('/', methods=['GET', 'POST'])
 def home():
     logging.info("Home page is requested") 
-
     num_top_rated = int(website.parser['home_page']['num_top_rated'])
     num_top_contributors = int(website.parser['home_page']['num_top_contributors'])
     top_rated_users = db_get_top_rated_users(website.db, website.dbConn, num_top_rated)
     top_contributors_users = db_get_top_contributors_users(website.db, website.dbConn, num_top_contributors)
+
     return render_template("home.html", user=current_user, top_rated_users = top_rated_users, top_contributors_users= top_contributors_users) 
 
 # @views.route('/profile/<handle>/home', methods=['GET', 'POST'])
@@ -247,6 +249,8 @@ def delete_account(handle):
     
     logging.info("Got Account delete requres from user: %s", handle)
     assert db_get_user_with_handle(website.db, website.dbConn, current_user.handle) != None
+
+
     logging.info("Deleting user from database")
     event = db_delete_user(website.db, website.dbConn, current_user.handle)
 
@@ -344,4 +348,61 @@ def contestlist():
     
     return render_template("contests.html", user=current_user, ongoing_contests=ongoing_contests, finished_contests=finished_contests, upcoming_contests=upcoming_contests, recent_contests=recent_contests,  first_page=first_page, last_page=last_page, curr_page=curr_page)
 
+@views.route('/contest/<contestId>', methods=['GET','POST'])
+@login_required
+def contest_home(contestId):
+    problem_list = []
+    if request.method == 'POST':
+        logging.info('Received File Input ')
+        f = request.files['file']
+        #f.save(secure_filename(f.filename))
+        logging.info('Received File Name: '+ f.filename)
+        #TODO: implement submission
+    else:
+        contest = db_get_contest_info(website.db, website.dbConn, contestId)
+        contest_problems = db_get_contest_data(website.db, website.dbConn, contestId)
+        for (idx,problem) in enumerate(contest_problems):
+            contest_problems[idx] = website.Problem(problem)
+
+
+    return render_template("contest_home.html", user = current_user, contest = website.Contest(contest) , contest_problems = contest_problems)
+
+@views.route('/create-contest', methods=['GET', 'POST'])
+@login_required
+def create_contest():
+    if current_user.handle != "col362_ta":
+        flash('You are not authorized to create contests', category='error')
+        return redirect(url_for('views.home'))
+
+    if request.method == 'POST':
+        result = json.dumps(request.form)
+        print(result)
+        start_after = request.form.get('start_after', default=0, type = int)
+        duration = request.form.get('duration', default=120, type = int)
+
+        problems = []
+
+        for c_x in range(0, 20):
+            c = chr( ord('A') + c_x)
+            print(c)
+
+            rating_c = request.form.get('rating' + c, default=-1, type=int)
+
+            if rating_c == -1:
+                break
+
+            name_c = request.form.get('name'+c, default="", type=str)
+
+            f_c = request.files['files'+c]
+
+            points_c = request.form.get('points'+c, default=-1, type=int)
+            tags_c = request.getlist('tags'+c) 
+            problems.append((c, rating_c, name_c, f_c.filename, points_c, tags_c) )
+
+            
+        print(problems)
+
+ 
+    all_tags = db_get_all_problem_tags(website.db, website.dbConn)
+    return render_template('create_contest.html', user=current_user, all_tags = all_tags)
 

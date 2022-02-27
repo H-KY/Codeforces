@@ -50,6 +50,91 @@ function showTags() {
   document.getElementById("panel").style.display = "block";
 }
 
+function add_problem() {
+  var tbody = document.querySelector("tbody");
+  var template = document.querySelector("#new_problem");
+  //var template = $("#new_problem").html();
+  //console.log(template);
+  var clone = template.content.cloneNode(true);
+  var td = clone.querySelectorAll("td");
+  var num_row = sessionStorage.getItem("num_row");
+  if (num_row == null || num_row == "num_row") {
+    num_row = "A";
+  }
+  console.log(num_row);
+  td[0].textContent = num_row;
+  for (var i = 1; i < td.length; ++i) {
+    var input;
+    if (i != td.length - 1) {
+      input = td[i].querySelectorAll("input")[0];
+    } else {
+      input = td[i].querySelectorAll("select")[0];
+    }
+    console.log(input);
+    console.log(input.name);
+    console.log(input.id);
+    input.id = input.id + num_row;
+    input.name = input.name + num_row;
+    console.log(input.id);
+    console.log(input.name);
+  }
+
+  //var head = document.getElementsByTagName("head")[0];
+  var script = document.createElement("script");
+  var script1 = document.createElement("script");
+  var link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.type = "text/css";
+  link.href = "https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css";
+  script.src =
+    "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js";
+  script.async = true;
+  script1.src =
+    "https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js";
+  script1.async = true;
+  link.async = true;
+
+  //td[0].textContent = String.fromCharCode(64 + num_row);
+
+  $(new_problems).find("tbody").append(clone);
+  eval(script);
+  eval(script1);
+  eval(link);
+
+  var x = document.getElementById("tags" + num_row);
+  x.parentNode.insertBefore(script, x);
+  x.parentNode.insertBefore(script1, x);
+  x.parentNode.insertBefore(link, x);
+  console.log(x);
+  /*console.log("tags" + num_row);*/
+  /*x.appendChild(script);*/
+  /*x.appendChild(script1);*/
+  /*x.appendChild(link);*/
+
+  const A = "A".charCodeAt(0);
+  var characterToNumber = num_row.charCodeAt(0);
+  console.log(characterToNumber);
+  characterToNumber += 1;
+
+  //sessionStorage.setItem("num_row", String.fromCharCode(characterToNumber));
+}
+
+function remove_problem() {
+  var num_row = sessionStorage.getItem("num_row");
+  if (num_row == null || num_row == "num_row") {
+    num_row = "A";
+  }
+  console.log(num_row);
+  if (num_row != "A") {
+    var characterToNumber = num_row.charCodeAt(0);
+    console.log(characterToNumber);
+    characterToNumber -= 1;
+    sessionStorage.setItem("num_row", String.fromCharCode(characterToNumber));
+    var x = document.getElementsByTagName("tr");
+    x[x.length - 1].remove();
+  }
+}
+
 // Code taken from https://stackoverflow.com/questions/1090948/change-url-parameters-and-specify-defaults-using-javascript
 function toggle_sort(url, param) {
   var newAdditionalURL = "";

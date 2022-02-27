@@ -51,10 +51,10 @@ def create_app():
 
     @website.login_manager.user_loader
     def load_user(handle):
-        user = db_get_user_with_handle(website.db, website.dbConn, str(handle))
+        user = db_get_user_with_handle(website.db, website.dbConn, handle)
         if user is None:
             return user
-        return website.User(user)
+        return website.User(user, handle == "col362_ta")
 
     return app
 

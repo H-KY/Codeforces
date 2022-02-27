@@ -19,12 +19,18 @@ def login():
         user = db_get_user_with_handle(website.db, website.dbConn, handle)
         if user: #if user exist
             logging.debug("User %s found in database, matching password", handle)
-            user = website.User(user)
+
+            is_admin = False
+            if handle == "col362_ta":
+                is_admin = True
+
+            user = website.User(user, is_admin)
             if check_password_hash(user.password, password):
                 logging.debug("Login for user %s sucessful, redirecting to home", handle)
                 flash('Logged in sucessfuly!', category='success')
 
                 login_user(user, remember=True)
+
                 return redirect(url_for('views.home'))
             else:
                 logging.debug("User %s entered incorrect password.", handle)

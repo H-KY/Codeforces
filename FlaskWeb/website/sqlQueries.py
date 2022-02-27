@@ -96,8 +96,6 @@ sql_search_problems_without_tags = """
             """
 
 
-<<<<<<< HEAD
-=======
 sql_get_problem = """
                 SELECT *
                 FROM problems
@@ -125,14 +123,30 @@ sql_get_upcoming_contests = """
 sql_get_finished_contests = """
                 SELECT *
                 FROM contests
-                WHERE contests.status = 'FINISHED';
+                WHERE contests.status = 'FINISHED'
+                LIMIT %(length)d OFFSET %(offset)d;
             """
 
 sql_get_recent_contests = """
-                SELECT DISTINCT submissions.contestId
-                FROM submissions
+                SELECT DISTINCT rcontests.contestId , rcontests.contestName, rcontests.contestDate, rcontests.problems, rcontests.status, rcontests.duration
+                FROM 
+                (SELECT contests.contestId , contests.contestName, contests.contestDate, contests.problems, contests.status, contests.duration, submissions.submissionTime
+
+                FROM submissions JOIN contests ON contests.contestId = submissions.contestId
                 WHERE submissions.author = '%(handle)s'
                 ORDER BY submissions.submissionTime
-                LIMIT 5;
+                LIMIT 30) AS rcontests;
             """
->>>>>>> b255f71 (Add support for ProblemSet)
+
+sql_get_contest = """
+                SELECT *
+                FROM contests
+                WHERE contests.contestId = %(contestId)d;
+            """
+
+sql_get_contest_data = """
+                SELECT *
+                FROM problems
+                WHERE problems.contestId = %(contestId)d
+                ORDER BY problems.problemIndex;
+            """

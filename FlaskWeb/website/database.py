@@ -734,6 +734,7 @@ def db_get_contest(db, dbConn, id):
         dbConn.commit()
     except Exception as e:
         logging.critical('Error fetching contest from database. Error %s', e)
+        dbConn.rollback()
         return None
     else:
         logging.info('Fetching contest successful')
@@ -755,6 +756,7 @@ def db_get_ongoing_contests(db, dbConn):
         dbConn.commit()
     except Exception as e:
         logging.critical('Error fetching ongoing contests. Error %s', e)
+        dbConn.rollback()
         return []
     else:
         logging.info('Fetching ongoing contests successful')
@@ -773,6 +775,7 @@ def db_get_upcoming_contests(db, dbConn):
         dbConn.commit()
     except Exception as e:
         logging.critical('Error fetching ongoing contests. Error %s', e)
+        dbConn.rollback()
         return []
     else:
         logging.info('Fetching ongoing contests successful')
@@ -800,6 +803,7 @@ def db_get_recent_contests(db, dbConn, handle):
     recent_contests_query = sql_get_recent_contests % {'handle': handle}
     logging.debug("Query: %s", recent_contests_query)
 
+    return []
     try:
         db.execute(recent_contests_query)
         result = db.fetchall()
@@ -807,8 +811,52 @@ def db_get_recent_contests(db, dbConn, handle):
         dbConn.commit()
     except Exception as e:
         logging.critical("Error fetching contests with recent submission. Error %s", e)
+        dbConn.rollback()
         return []
 
+
+    return result
+
+
+def db_get_contest_info(db,dbConn,contestId):
+    logging.info("Fetching contest data for id: %s", contestId)
+    get_contest_query = sql_get_contest % {'contestId': int(contestId)}
+    logging.debug("Query: %s", get_contest_query)
+    try:
+        db.execute(get_contest_query)
+        result = db.fetchall()
+        assert len(result) <= 1
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Fetchig contest info unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return []
+    else:
+        logging.info("Fetching contest info successful")
+
+    if len(result) == 0:
+        return None
+    
+    return result[0]
+
+
+def db_get_contest_data(db,dbConn,contestId):
+    logging.info("Fetching contest data for id: %s", contestId)
+    contest_data_query = sql_get_contest_data % {'contestId': int(contestId)}
+
+    logging.debug("Query: %s", contest_data_query)
+    try:
+        db.execute(contest_data_query)
+        result = db.fetchall()
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Fetching contest data unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return []
+    else:
+        logging.info("Fetching contest data successful")
+    
     return result
 
 

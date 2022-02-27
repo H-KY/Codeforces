@@ -81,11 +81,11 @@ content %}
             <td>{{ problem.rating  }}</td>
             <td>
               <a href="#">
-                {{ problem.constestId }}</a
+                {{ problem.contestId }}</a
               >
             </td>
-            <td> <a href="{{url_for('views.problem', id=problem.constestId, index=problem.problemIndex )}}"> {{ problem.problemIndex }} </a> </td>
-            <td> <a href="{{url_for('views.problem', id=problem.constestId, index=problem.problemIndex )}}"> {{ problem.name }} </a> </td>
+            <td> <a href="{{url_for('views.problem', id=problem.contestId, index=problem.problemIndex )}}"> {{ problem.problemIndex }} </a> </td>
+            <td> <a href="{{url_for('views.problem', id=problem.contestId, index=problem.problemIndex )}}"> {{ problem.name }} </a> </td>
           </tr>
           {% endfor %}
         </tbody>

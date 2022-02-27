@@ -16,6 +16,22 @@
       crossorigin="anonymous"
     />
 
+    <link
+      href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css"
+      rel="stylesheet"
+    />
+
+    <script
+      src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+    >
+      alert('Thanks!')
+    </script>
+    <script
+      src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"
+    >
+      alert('Thanks!')
+    </script>
+
     <title>{% block title %}Home{% endblock %}</title>
   </head>
   <body>
@@ -95,15 +111,32 @@
     </nav>
 
     <div class="topnav">
-      {% if user.is_authenticated %}
+      {% if request.path == url_for('views.home') %}
       <a class="active" href="{{ url_for('views.home') }}">HOME</a>
       {% else %}
       <a href="{{ url_for('views.home') }}">HOME</a>
-      {% endif %}
+      {% endif %} {% if request.path == url_for('views.problemSet') %}
+      <a class="active" href="{{ url_for('views.problemSet') }}">PROBLEMSET</a>
+      {% else %}
       <a href="{{ url_for('views.problemSet') }}">PROBLEMSET</a>
+      {% endif %} {% if request.path == url_for('views.contestlist') %}
+      <a class="active" href="{{ url_for('views.contestlist') }}">CONTESTS</a>
+      {% else %}
       <a href="{{ url_for('views.contestlist') }}">CONTESTS</a>
+      {% endif %}
+
+      <!--<a class="active" href="#">BLOGS</a>-->
       <a href="#">BLOGS</a>
+
+      {% if request.path == url_for('views.users') %}
+      <a class="active" href="{{ url_for('views.users') }}">USERS</a>
+      {% else %}
       <a href="{{ url_for('views.users') }}">USERS</a>
+      {% endif %} {% if user.is_admin %}
+
+      <a href="{{ url_for('views.create_contest') }}">CREATE CONTEST</a>
+
+      {% endif %}
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %} {% if
