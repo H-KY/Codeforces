@@ -180,4 +180,7 @@ sql_get_submissions = """
                 WHERE submissions.contestId = %(contestId)d AND submissions.author = '%(handle)s';
             """
 
+sql_add_submission  = """
+                INSERT INTO submissions VALUES ( %(values)s );
 
+            """

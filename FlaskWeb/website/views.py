@@ -17,9 +17,9 @@ views = Blueprint('views', __name__)
 def unauthorized_callback():
     return redirect(url_for('auth.login'))
 
-def handle_submission(id, index, file, author, lang):
-    rr = random.randint(0, 10)
+def handle_submission(id, index,  author, lang):
 
+    rr = random.randint(0, 10)
     ongoing_contests = db_get_ongoing_contests(website.db, website.dbConn)
 
     verdict = "WRONG_ANSWER"
@@ -41,17 +41,11 @@ def handle_submission(id, index, file, author, lang):
 
     stime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    sub = website.Submission((rr, id, typ, index, author, lang, verdict, tCons, mbyte, stime) )
+    sub = website.Submission((sid, id, typ, index, author, lang, verdict, tCons, mbyte, stime) )
 
     db_add_submission(website.db, website.dbConn, sub)
      
     return
-
-
-
-
-    
-
 
 
 @views.route('/', methods=['GET', 'POST'])
@@ -337,9 +331,18 @@ def make_unfollower(handle):
 
     return jsonify({})
 
-@views.route('/contest/<id>/problem/<index>', methods=['GET'])
+@views.route('/contest/<id>/problem/<index>', methods=['GET', 'POST'])
 def problem(id, index):
     handle_upcoming_contests()
+
+    if request.method == 'POST':
+        if current_user.is_authenticated:
+            handle_submission(id, index,  current_user.handle, request.form.get('Language') )
+            return redirect(url_for('views.submissions', id=id))
+        else:
+            flash("You are not authorization", category='error')
+            
+
     logging.info("Problem with index: %s in contest: %d is requested", index, int(id))
 
 
@@ -447,7 +450,7 @@ def create_contest():
         contest_id += 1
         start_time = datetime.now() + timedelta(minutes=start_after) 
 
-        event = db_create_contest(website.db, website.dbConn, contest_id,  contest_name, duration, start_time, problems)
+        event = db_create_contest(website.db, website.dbConn, contest_id,  contest_name, duration, start_time, problems )
         if not event:
             flash("Creating contest unsuccesful", category = 'error')
             return redirect(url_for('views.contestlist'))
@@ -458,8 +461,10 @@ def create_contest():
             if file_ext != '.jpeg' and file_ext != '.jpg' and file_ext != '.png':
                 flash("Invalid submission format", category = 'error')
                 return redirect(url_for('views.contestlist'))
-            os.makedirs('problemSet/' + str(contest_id))
-            problem[3].save('problemSet/' + str(contest_id) + '/' + problem[0] + file_ext )
+            directory = 'website/static/problemSet' + str(contest_id)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            problem[3].save('website/static/problemSet/' + str(contest_id) + '/' + problem[0] + file_ext )
 
 
         return redirect(url_for('views.contestlist'))
@@ -493,9 +498,9 @@ def handle_upcoming_contests():
 
 
     ongoing_contests = db_get_ongoing_contests(website.db, website.dbConn)
-
+    print(ongoing_contests)
     for contest in ongoing_contests:
         contest = website.Contest(contest)
-        if contest.contestDate + timedelta(contest.duration) < datetime.now():
+        if contest.contestDate + timedelta(minutes=contest.duration) < datetime.now():
             db_change_contest_to_finished(website.db, website.dbConn, contest.contestId)
 

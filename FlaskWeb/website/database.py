@@ -1,5 +1,6 @@
 import psycopg2
 import logging
+import os
 import sys
 import website
 from website.sqlQueries import *
@@ -893,7 +894,9 @@ def db_create_contest(db, dbConn, contestId, contestName, duration, contestDate,
 
     create_problems_query = []
     for problem in problems:
-        url = 'problemSet/' + str(contestId) + '/' + problem[0] + '.jpeg'
+        filename = problem[3].filename
+        frmt = os.path.splitext(filename)[1]
+        url = 'problemSet/' + str(contestId) + '/' + problem[0] + frmt
         create_problem_query = sql_create_problem % {'name': problem[2], 'contest_id': contestId, 'problemIndex': problem[0], 'rating': problem[1], 'tags': str(problem[5]), 'url':  url, 'points': problem[4] }
         create_problems_query.append(create_problem_query)
         logging.debug(create_problem_query)
@@ -943,7 +946,7 @@ def db_change_contest_to_finished(db, dbConn, contestId):
 
 
 def db_get_submissions(db, dbConn, id, handle):
-    logging.info("Getting submissions %d, %s", id, handle)
+    logging.info("Getting submissions %d, %s", int(id), handle)
 
     submissions_query = sql_get_submissions % {'contestId': int(id), 'handle': handle}
     logging.debug(submissions_query)
@@ -953,7 +956,7 @@ def db_get_submissions(db, dbConn, id, handle):
         result = db.fetchall()
         dbConn.commit()
     except Exception as e:
-        logging.critical("Failed getting submissions. Error %e", e)
+        logging.critical("Failed getting submissions. Error %s", e)
         dbConn.rollback()
     else:
         logging.info("Successful getting submissions")
@@ -961,10 +964,19 @@ def db_get_submissions(db, dbConn, id, handle):
     return result
 
 
+def db_add_submission(db, dbConn, sub):
+    logging.info("Adding submission to table")
 
+    add_submission_query = sql_add_submission % {'values': sub.getStr()} 
+    logging.debug(add_submission_query)
 
-
-
-
+    try:
+        db.execute(add_submission_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Failed adding submission. Error %s", e)
+        dbConn.rollback()
+    else:
+        logging.info("Successful adding submission")
 
 

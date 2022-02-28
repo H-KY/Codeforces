@@ -80,6 +80,13 @@ class Submission:
         self.memoryconsumedbytes = memebytes
         self.submissionTime = sTime
 
+        self.simple_s_time = sTime.strftime("%Y-%m-%d %H:%M:%S")
+
+    def getStr(self):
+        return str(self.submissionId) + ','  + str(self.contestId) + ',\'' + str(self.submissionType) + '\',\'' + str(self.author) + '\',\'' + str(self.programmingLanguage) + '\',\'' + str(self.verdict) + '\',' + str(self.timeconsumedmillis) + ',' + str(self.memoryconsumedbytes) + ',\'' + str(self.problemIndex) + '\',' + 'CAST ( \'' + str(self.submissionTime) + '\' AS timestamp )'
+
+
+
 
 
 
