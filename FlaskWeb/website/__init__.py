@@ -1,5 +1,4 @@
 import datetime
-import logging
 
 parser = None
 
@@ -65,8 +64,27 @@ class Contest:
         self.problems = problems
         self.status = status
         self.duration = duration
-        self.contestDate = contestDate
+        self.contestDate = datetime.datetime.strptime(str(contestDate), '%Y-%m-%d %H:%M:%S')
          
+class Submission:
+    def __init__(self, submission):
+        (sid, cid, sType, pIdx, ath, pLan, ver, timeConsum, memebytes, sTime) = submission
+        self.submissionId = sid
+        self.contestId = cid
+        self.submissionType = sType
+        self.problemIndex = pIdx
+        self.author = ath
+        self.programmingLanguage = pLan
+        self.verdict = ver
+        self.timeconsumedmillis = timeConsum
+        self.memoryconsumedbytes = memebytes
+        self.submissionTime = sTime
+
+
+
+
+
+
 #Points to be noted 
 #1. Database will return tuples
 #2. If required tuples can be converted to the User class

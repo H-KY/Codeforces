@@ -3,7 +3,7 @@ block content %}
 
 <div class="container-fluid" style="background-color: snow; padding-top: 2%; align-items: center;  justify-content: center; display: flex; width: 80%; display:table">
   <!--code from https://stackoverflow.com/questions/31291645/add-input-fields-in-form-when-dropdown-option-selected-->
-  <form method="post" id="new_contest_problems">
+  <form method="post" id="new_contest_problems" enctype='multipart/form-data'>
 
   <h1 style="color: black; text-align: center;"> Create New Contest </h1>
   <br />
@@ -146,7 +146,7 @@ $(".chosen-select").chosen({
 
         </td>
         <td>
-              <input type="file", id="file", name = "file" required/>
+              <input type="file", id="file", name = "file"  required/>
 
         </td>
         <td> 

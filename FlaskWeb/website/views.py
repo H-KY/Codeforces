@@ -1,19 +1,58 @@
-from os import defpath
 from flask import Blueprint, render_template, flash, request, redirect, jsonify
 from flask.helpers import url_for
 from flask_login import  current_user, logout_user, login_user, login_required
 from website.database import *
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
+from datetime import datetime, timedelta
 import website
 import logging
 import json
+import os
+import random
 
 views = Blueprint('views', __name__)
 
 @website.login_manager.unauthorized_handler
 def unauthorized_callback():
     return redirect(url_for('auth.login'))
+
+def handle_submission(id, index, file, author, lang):
+    rr = random.randint(0, 10)
+
+    ongoing_contests = db_get_ongoing_contests(website.db, website.dbConn)
+
+    verdict = "WRONG_ANSWER"
+    sid = random.randint(144210990, 1000000000000)
+    tCons = 23
+    mbyte = 2321
+
+    if rr == 0:
+        verdict = "OK"
+
+    typ = "PRACTICE"
+    ok = 1
+    for contest in ongoing_contests:
+        if id == website.Contest(contest).contestId:
+            ok = 0
+            break
+    if ok == 0:
+        typ = "CONTESTANT"
+
+    stime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    sub = website.Submission((rr, id, typ, index, author, lang, verdict, tCons, mbyte, stime) )
+
+    db_add_submission(website.db, website.dbConn, sub)
+     
+    return
+
+
+
+
+    
+
+
 
 @views.route('/', methods=['GET', 'POST'])
 def home():
@@ -131,7 +170,7 @@ problem_set_tag_store = dict()
 
 @views.route('/problemSet', methods=['GET', 'POST'])
 def problemSet():
-
+    handle_upcoming_contests()
     if request.method == 'POST' or len(problem_set_tag_store) == 0:
         problem_set_tag_store['rating'] = request.form.get('rating', default=0, type=int)
         problem_set_tag_store['rcmp'] = request.form.get('rcmp', default="ge", type=int)
@@ -300,6 +339,7 @@ def make_unfollower(handle):
 
 @views.route('/contest/<id>/problem/<index>', methods=['GET'])
 def problem(id, index):
+    handle_upcoming_contests()
     logging.info("Problem with index: %s in contest: %d is requested", index, int(id))
 
 
@@ -316,6 +356,7 @@ def problem(id, index):
 
 @views.route('/contests')
 def contestlist():
+    handle_upcoming_contests()
     logging.info("Contest page is requested")
     ongoing_contests = db_get_ongoing_contests(website.db, website.dbConn)
     for (idx,contest) in enumerate(ongoing_contests):
@@ -351,6 +392,7 @@ def contestlist():
 @views.route('/contest/<contestId>', methods=['GET','POST'])
 @login_required
 def contest_home(contestId):
+    handle_upcoming_contests()
     problem_list = []
     if request.method == 'POST':
         logging.info('Received File Input ')
@@ -375,16 +417,14 @@ def create_contest():
         return redirect(url_for('views.home'))
 
     if request.method == 'POST':
-        result = json.dumps(request.form)
-        print(result)
         start_after = request.form.get('start_after', default=0, type = int)
         duration = request.form.get('duration', default=120, type = int)
+        contest_name = request.form.get('contest_name')
 
         problems = []
 
         for c_x in range(0, 20):
             c = chr( ord('A') + c_x)
-            print(c)
 
             rating_c = request.form.get('rating' + c, default=-1, type=int)
 
@@ -393,16 +433,69 @@ def create_contest():
 
             name_c = request.form.get('name'+c, default="", type=str)
 
-            f_c = request.files['files'+c]
+            f_c = request.files['file'+c]
 
             points_c = request.form.get('points'+c, default=-1, type=int)
-            tags_c = request.getlist('tags'+c) 
-            problems.append((c, rating_c, name_c, f_c.filename, points_c, tags_c) )
+            tags_c = request.form.getlist('tags'+c) 
+            problems.append((c, rating_c, name_c, f_c, points_c, tags_c) )
 
-            
-        print(problems)
+        contest_id = db_get_mx_contest_id(website.db, website.dbConn)
+        if contest_id == None:
+            flash("Creating contest unsuccesful", category = 'error')
+            return redirect(url_for('views.contestlist'))
+        
+        contest_id += 1
+        start_time = datetime.now() + timedelta(minutes=start_after) 
 
- 
+        event = db_create_contest(website.db, website.dbConn, contest_id,  contest_name, duration, start_time, problems)
+        if not event:
+            flash("Creating contest unsuccesful", category = 'error')
+            return redirect(url_for('views.contestlist'))
+
+        for problem in problems:
+            filename = problem[3].filename
+            file_ext = os.path.splitext(filename)[1]
+            if file_ext != '.jpeg' and file_ext != '.jpg' and file_ext != '.png':
+                flash("Invalid submission format", category = 'error')
+                return redirect(url_for('views.contestlist'))
+            os.makedirs('problemSet/' + str(contest_id))
+            problem[3].save('problemSet/' + str(contest_id) + '/' + problem[0] + file_ext )
+
+
+        return redirect(url_for('views.contestlist'))
+        
+
     all_tags = db_get_all_problem_tags(website.db, website.dbConn)
     return render_template('create_contest.html', user=current_user, all_tags = all_tags)
+
+@views.route('/contest/<id>/submissions', methods=['GET'])
+@login_required
+def submissions(id):
+
+    all_submissions = db_get_submissions(website.db, website.dbConn, id, current_user.handle)
+    contest = db_get_contest_info(website.db, website.dbConn, id)
+
+    for (idx,submission) in enumerate(all_submissions):
+        all_submissions[idx] = website.Submission(submission)
+
+    return render_template('submissions.html', submissions=all_submissions, user=current_user, contest=website.Contest(contest))
+
+
+def handle_upcoming_contests():
+    print('Home')
+    upcoming_contest = db_get_upcoming_contests(website.db,website.dbConn)
+    
+
+    for contest in upcoming_contest:
+        contest = website.Contest(contest)
+        if contest.contestDate < datetime.now():
+            db_change_contest_to_running(website.db, website.dbConn, contest.contestId)
+
+
+    ongoing_contests = db_get_ongoing_contests(website.db, website.dbConn)
+
+    for contest in ongoing_contests:
+        contest = website.Contest(contest)
+        if contest.contestDate + timedelta(contest.duration) < datetime.now():
+            db_change_contest_to_finished(website.db, website.dbConn, contest.contestId)
 

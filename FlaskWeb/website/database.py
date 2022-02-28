@@ -1,4 +1,3 @@
-from posixpath import expanduser
 import psycopg2
 import logging
 import sys
@@ -858,6 +857,114 @@ def db_get_contest_data(db,dbConn,contestId):
         logging.info("Fetching contest data successful")
     
     return result
+
+def db_get_mx_contest_id(db, dbConn):
+    logging.info("Fetching max contest id")
+    max_contest_id_query = sql_get_max_contest_id
+    logging.debug("Query: %s", max_contest_id_query)
+
+    try:
+        db.execute(max_contest_id_query)
+        result = db.fetchall()
+        logging.debug(result)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Fetching max contest id unsuccesful. Error %s", e)
+        dbConn.rollback()
+        return None
+    else:
+        logging.info("Fetching max contest id successful")
+    assert len(result) == 1
+
+    return result[0][0]
+
+
+def db_create_contest(db, dbConn, contestId, contestName, duration, contestDate, problems):
+    logging.info("Creating new contest")
+    logging.debug(problems)
+    curr = contestDate.strftime('%Y-%m-%d %H:%M:%S')
+    p_list = []
+    for p in problems:
+        p_list.append(p[0])
+    logging.debug(p)
+
+    create_contest_query = sql_create_contest % {'contestId': contestId, 'contestName': contestName, 'problems': str(p_list), 'duration': duration, 'contestDate': curr}
+    logging.debug(create_contest_query)
+
+    create_problems_query = []
+    for problem in problems:
+        url = 'problemSet/' + str(contestId) + '/' + problem[0] + '.jpeg'
+        create_problem_query = sql_create_problem % {'name': problem[2], 'contest_id': contestId, 'problemIndex': problem[0], 'rating': problem[1], 'tags': str(problem[5]), 'url':  url, 'points': problem[4] }
+        create_problems_query.append(create_problem_query)
+        logging.debug(create_problem_query)
+
+    try:
+        db.execute(create_contest_query)
+        for create_problem_query in create_problems_query:
+            db.execute(create_problem_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Creating contest failed. Error %e", e)
+        return False
+    else:
+        logging.info("Creating contest successful")
+
+    return True
+
+def db_change_contest_to_running(db, dbConn, contestId):
+    logging.info("Making contest: %d running", contestId)
+
+    make_contest_running_query = sql_make_contest_running % {'contestId': contestId}
+    logging.debug(make_contest_running_query)
+
+    try:
+        db.execute(make_contest_running_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical('Failed to make contest runnable. Error %e', e)
+        dbConn.rollback()
+    else:
+        logging.info("Made contest runnable")
+
+def db_change_contest_to_finished(db, dbConn, contestId):
+    logging.info("Make contest: %d finished", contestId)
+    make_contest_finished_query = sql_make_contest_finished % {'contestId': contestId}
+
+    logging.debug(make_contest_finished_query)
+
+    try:
+        db.execute(make_contest_finished_query)
+        dbConn.commit()
+    except Exception as e:
+        logging.critical('Failed to finish contest. Error %e', e)
+        dbConn.rollback()
+    else:
+        logging.info("Made contest finished")
+
+
+def db_get_submissions(db, dbConn, id, handle):
+    logging.info("Getting submissions %d, %s", id, handle)
+
+    submissions_query = sql_get_submissions % {'contestId': int(id), 'handle': handle}
+    logging.debug(submissions_query)
+
+    try:
+        db.execute(submissions_query)
+        result = db.fetchall()
+        dbConn.commit()
+    except Exception as e:
+        logging.critical("Failed getting submissions. Error %e", e)
+        dbConn.rollback()
+    else:
+        logging.info("Successful getting submissions")
+
+    return result
+
+
+
+
+
+
 
 
 

@@ -57,10 +57,8 @@ function add_problem() {
   //console.log(template);
   var clone = template.content.cloneNode(true);
   var td = clone.querySelectorAll("td");
-  var num_row = sessionStorage.getItem("num_row");
-  if (num_row == null || num_row == "num_row") {
-    num_row = "A";
-  }
+  var num = document.getElementsByTagName("tr").length + 1;
+  var num_row = String.fromCharCode(num + 63);
   console.log(num_row);
   td[0].textContent = num_row;
   for (var i = 1; i < td.length; ++i) {
@@ -110,20 +108,11 @@ function add_problem() {
   /*x.appendChild(script);*/
   /*x.appendChild(script1);*/
   /*x.appendChild(link);*/
-
-  const A = "A".charCodeAt(0);
-  var characterToNumber = num_row.charCodeAt(0);
-  console.log(characterToNumber);
-  characterToNumber += 1;
-
-  //sessionStorage.setItem("num_row", String.fromCharCode(characterToNumber));
 }
 
 function remove_problem() {
-  var num_row = sessionStorage.getItem("num_row");
-  if (num_row == null || num_row == "num_row") {
-    num_row = "A";
-  }
+  var num = document.getElementsByTagName("tr").length;
+  var num_row = String.fromCharCode(num + 65);
   console.log(num_row);
   if (num_row != "A") {
     var characterToNumber = num_row.charCodeAt(0);

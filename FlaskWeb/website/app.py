@@ -35,6 +35,8 @@ website.login_manager.login_view = 'auth.login'
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'qwernaowja'
+    app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png']
+    app.config['UPLOAD_PATH'] = 'static/'
 
     from .views import views
     from .auth import auth

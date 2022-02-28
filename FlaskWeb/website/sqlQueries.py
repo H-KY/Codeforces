@@ -124,6 +124,7 @@ sql_get_finished_contests = """
                 SELECT *
                 FROM contests
                 WHERE contests.status = 'FINISHED'
+                ORDER BY contests.contestDate DESC
                 LIMIT %(length)d OFFSET %(offset)d;
             """
 
@@ -150,3 +151,33 @@ sql_get_contest_data = """
                 WHERE problems.contestId = %(contestId)d
                 ORDER BY problems.problemIndex;
             """
+
+
+sql_get_max_contest_id = """
+                SELECT MAX(contests.contestId)
+                FROM contests;
+            """
+
+sql_create_contest = """
+                INSERT INTO contests VALUES (%(contestId)d, '%(contestName)s', ARRAY %(problems)s, 'UPCOMING', %(duration)d, CAST( '%(contestDate)s' as timestamp )  );
+            """
+
+sql_create_problem = """
+                INSERT INTO problems VALUES ('%(name)s', %(contest_id)d, '%(problemIndex)s', %(rating)d, ARRAY %(tags)s, %(points)d, '%(url)s'    );
+            """
+
+sql_make_contest_running = """
+                UPDATE contests SET status = 'ONGOING' where contestId = %(contestId)d;
+            """
+
+sql_make_contest_finished = """
+                UPDATE contests SET status = 'FINISHED' where contestId = %(contestId)d;
+            """
+
+sql_get_submissions = """
+                SELECT * 
+                FROM submissions
+                WHERE submissions.contestId = %(contestId)d AND submissions.author = '%(handle)s';
+            """
+
+

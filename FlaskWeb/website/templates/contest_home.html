@@ -11,6 +11,7 @@
       <a href="#"
         >Standing</a
       >
+      <a href="{{ url_for('views.submissions', id=contest.contestId)  }}"> My Submissions </a>
     </div>
     <style>
       .contestnav {
@@ -62,7 +63,6 @@
             <th scope="col">#</th>
             <th scope="col">Problem ID</th>
             <th scope="col">Problem Name</th>
-            <th scope="col">Submit</th>
             <th scope="col">Points </th>
           </tr>
         </thead>
@@ -82,12 +82,6 @@
             </td>
 
             <td>
-              <form  method = "POST" enctype = "multipart/form-data">
-                <input type="file", id="file", name = "file"/>
-                <input type = "submit"/>
-              </form>
-            </td>
-            <td>
                 {{ problem.points }}
             </td>
           </tr>
@@ -99,12 +93,6 @@
               <a href="{{ url_for('views.problem', id=problem.contestId, index=problem.problemIndex )}}">
                 {{ problem.name }}</a
               >
-            </td>
-            <td>
-              <form  method = "POST">
-                <input type="file", id="file", name = "file"/>
-                <input type = "submit"/>
-              </form>
             </td>
             <td>
                 {{ problem.points }}
